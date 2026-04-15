@@ -71,6 +71,9 @@ public:
 	 */
 	void Initialize(DirectXCommon* dxCommon);
 
+	/** @brief D3D12リソースを解放する */
+	void Finalize();
+
 	/**
 	 * @brief 全パーティクルの座標や寿命を更新し、ビルボード（カメラの方向を向く）計算を行う
 	 * @param camera 描画に使用するカメラ（ビルボード行列の計算に必要）

@@ -97,6 +97,11 @@ void SceneManager::Finalize()
 
     currentScene_.reset();
     nextScene_.reset();
+
+    // Fade内のSpriteが持つD3D12リソースを解放する
+    fade_ = Fade{};
+    // SpriteCommonのPSO・ルートシグネチャ・バッファを解放する
+    spriteCommon_.reset();
 }
 
 // ロード画面経由でシーン切り替え

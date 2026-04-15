@@ -21,6 +21,14 @@ void ParticleManager::Initialize(DirectXCommon* dxCommon)
     CreatePipelineState();
 }
 
+void ParticleManager::Finalize()
+{
+    particleGroups_.clear();
+    graphicsPipelineState_.Reset();
+    rootSignature_.Reset();
+    dxCommon_ = nullptr;
+}
+
 void ParticleManager::CreateParticleGroup(const std::string& name, const std::string& textureFilePath)
 {
     // 登録済みの名前かチェックしてassert

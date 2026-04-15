@@ -1,5 +1,4 @@
 ﻿#include "Framework.h"
-#include "D3DResourceLeakChecker.h"
 #include "SrvManager.h"
 #include "MeshManager.h"
 #include "MaterialManager.h"
@@ -7,10 +6,6 @@
 #include "TextureManager.h"
 #include "ModelManager.h"
 #include "ParticleManager.h"
-
-// グローバル変数の実体定義
-
-static D3D12ResourceLeakChecker leakCheck;
 
 void Framework::Run()
 {
@@ -72,6 +67,7 @@ void Framework::Finalize()
     }
 
     // 各種マネージャーのGPUリソースを解放する
+    ParticleManager::GetInstance()->Finalize();
     MeshManager::GetInstance()->Finalize();
     MaterialManager::GetInstance()->Finalize();
     TextureManager::GetInstance()->Finalize();
