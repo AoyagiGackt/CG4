@@ -17,8 +17,8 @@ void SceneManager::Initialize(DirectXCommon* dxCommon, Input* input, Audio* audi
     audio_ = audio;
     imguiManager_ = imgui;
 
-    // 最初のシーン
-    currentScene_ = std::make_unique<TitleScene>();
+    // 最初のシーン（ゲームプレイシーンから開始）
+    currentScene_ = std::make_unique<GamePlayScene>();
     currentScene_->Initialize(dxCommon_, input_, audio_);
 
     spriteCommon_ = std::make_unique<SpriteCommon>();
@@ -27,9 +27,9 @@ void SceneManager::Initialize(DirectXCommon* dxCommon, Input* input, Audio* audi
     // フェードの初期化
     fade_.Initialize(spriteCommon_.get());
 
-   auto titleScene = dynamic_cast<TitleScene*>(currentScene_.get());
-    if (titleScene) {
-        titleScene->SetImGuiManager(imguiManager_);
+    auto gameplayScene = dynamic_cast<GamePlayScene*>(currentScene_.get());
+    if (gameplayScene) {
+        gameplayScene->SetImGuiManager(imguiManager_);
     }
 }
 

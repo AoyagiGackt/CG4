@@ -34,7 +34,11 @@ void Enemy::Initialize(ModelCommon* modelCommon, Model* model, Input* input, Mod
 	idleWaitRand_ = std::uniform_int_distribution<int>(60, 180);    // Idle待機フレーム
 	idleWait_ = idleWaitRand_(randomEngine_);
 
-	ApplyCondition();
+	// 固定値（Normal相当）
+	moveSpeedMultiplier_ = 1.0f;
+	hp_ = 190;
+	shootInterval_ = 60;
+	jumpProbability_ = 0.01f;
 }
 
 void Enemy::SetPosition(const Vector3& position)
@@ -43,12 +47,6 @@ void Enemy::SetPosition(const Vector3& position)
 	if (enemy_) {
 		enemy_->SetPosition(position_);
 	}
-}
-
-void Enemy::SetCondition(Condition::ConditionType condition)
-{
-	condition_.SetCondition(condition);
-	ApplyCondition();
 }
 
 void Enemy::Update(Camera *camera, float scrollSpeed) {
@@ -148,48 +146,6 @@ void Enemy::UpdateFacingDirection()
 	}
 }
 
-void Enemy::ApplyCondition()
-{
-	switch (condition_.GetCondition()) {
-
-		case Condition::ConditionType::Excellent:
-		moveSpeedMultiplier_ = 1.5f;
-		hp_ = 300; // 5発（絶好調時は弾命中で即死なのでこの値は使わない）
-		shootInterval_ = 30;
-		jumpProbability_ = 0.03f;
-		break;
-
-		case Condition::ConditionType::Good:
-		moveSpeedMultiplier_ = 1.2f;
-		hp_ = 250; // 5発 ceil(250/60)=5
-		shootInterval_ = 45;
-		jumpProbability_ = 0.02f;
-		break;
-
-		case Condition::ConditionType::Normal:
-		moveSpeedMultiplier_ = 1.0f;
-		hp_ = 190; // 4発 ceil(190/60)=4
-		shootInterval_ = 60;
-		jumpProbability_ = 0.01f;
-		break;
-
-		case Condition::ConditionType::Bad:
-		moveSpeedMultiplier_ = 0.8f;
-		hp_ = 130; // 3発 ceil(130/60)=3
-		shootInterval_ = 90;
-		jumpProbability_ = 0.005f;
-		break;
-
-		case Condition::ConditionType::Terrible:
-		moveSpeedMultiplier_ = 0.6f;
-		hp_ = 80; // 2発 ceil(80/60)=2
-		shootInterval_ = -1;
-		jumpProbability_ = 0.002f;
-		break;
-	}
-}
-
-
 void Enemy::Draw() {
 	if (enemy_) {
 		enemy_->Draw();
@@ -245,31 +201,8 @@ void Enemy::Attack()
 
 	// 弾のランダム射撃（確率で発射）
 	if (shotCooldown_ <= 0) {
-		
+
 		float shootChance = 0.03f;
-
-		switch (condition_.GetCondition())
-		{
-			case Condition::ConditionType::Excellent:
-			shootChance = 0.06f;
-			break;
-
-			case Condition::ConditionType::Good:
-			shootChance = 0.04f;
-			break;
-
-			case Condition::ConditionType::Normal:
-			shootChance = 0.03f;
-			break;
-
-			case Condition::ConditionType::Bad:
-			shootChance = 0.02f;
-			break;
-
-			case Condition::ConditionType::Terrible:
-			shootChance = 0.0f;
-			break;
-		}
 
 		if (shotDist_(randomEngine_) <= shootChance)
 		{

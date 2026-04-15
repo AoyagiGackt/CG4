@@ -158,24 +158,18 @@
   <ItemGroup>
     <ClCompile Include="engin\game\cpp\Animation.cpp" />
     <ClCompile Include="engin\game\cpp\Audio.cpp" />
-    <ClCompile Include="engin\game\cpp\BeamSpecial.cpp" />
     <ClCompile Include="engin\game\cpp\bulletHitEffect.cpp" />
     <ClCompile Include="engin\game\cpp\ClearScene.cpp" />
     <ClCompile Include="engin\game\cpp\ConditionUpEffect.cpp" />
     <ClCompile Include="engin\game\cpp\GameOverScene.cpp" />
     <ClCompile Include="engin\game\cpp\PauseScene.cpp" />
-    <ClCompile Include="engin\game\cpp\Condition.cpp" />
-    <ClCompile Include="engin\game\cpp\BuffManager.cpp" />
     <ClCompile Include="engin\game\cpp\GameTime.cpp" />
-    <ClCompile Include="engin\game\cpp\SpinBlade.cpp" />
     <ClCompile Include="engin\game\cpp\TimeDisplay.cpp" />
     <ClCompile Include="engin\game\cpp\ScoreDisplay.cpp" />
-    <ClCompile Include="engin\game\cpp\EmojiUI.cpp" />
     <ClCompile Include="engin\game\cpp\Bullet.cpp" />
     <ClCompile Include="engin\game\cpp\Enemy.cpp" />
     <ClCompile Include="engin\game\cpp\Collision.cpp" />
     <ClCompile Include="engin\game\cpp\EnemyDeathEffect.cpp" />
-    <ClCompile Include="engin\game\cpp\Turret.cpp" />
     <ClCompile Include="engin\game\cpp\EnemyManager.cpp" />
     <ClCompile Include="engin\game\cpp\Framework.cpp" />
     <ClCompile Include="engin\game\cpp\Game.cpp" />
@@ -188,8 +182,6 @@
     <ClCompile Include="engin\game\cpp\SceneFactory.cpp" />
     <ClCompile Include="engin\game\cpp\SceneManager.cpp" />
     <ClCompile Include="engin\game\cpp\ScoreManager.cpp" />
-    <ClCompile Include="engin\game\cpp\SpecialMove.cpp" />
-    <ClCompile Include="engin\game\cpp\TeleportBomb.cpp" />
     <ClCompile Include="engin\game\cpp\LoadingScene.cpp" />
     <ClCompile Include="engin\game\cpp\TitleScene.cpp" />
     <ClCompile Include="engin\game\cpp\WorldTransform.cpp" />
@@ -270,22 +262,17 @@
     <ClInclude Include="engin\game\h\Animation.h" />
     <ClInclude Include="engin\game\h\Audio.h" />
     <ClInclude Include="engin\game\h\BaseScene.h" />
-    <ClInclude Include="engin\game\h\BeamSpecial.h" />
     <ClInclude Include="engin\game\h\bulletHitEffect.h" />
     <ClInclude Include="engin\game\h\ClearScene.h" />
     <ClInclude Include="engin\game\h\ConditionUpEffect.h" />
     <ClInclude Include="engin\game\h\GameOverScene.h" />
     <ClInclude Include="engin\game\h\PauseScene.h" />
-    <ClInclude Include="engin\game\h\Condition.h" />
-    <ClInclude Include="engin\game\h\BuffManager.h" />
     <ClInclude Include="engin\game\h\Bullet.h" />
     <ClInclude Include="engin\game\h\Enemy.h" />
     <ClInclude Include="engin\game\h\Collision.h" />
     <ClInclude Include="engin\game\h\CollisionConfig.h" />
     <ClInclude Include="engin\game\h\CollisionManager.h" />
     <ClInclude Include="engin\game\h\EnemyDeathEffect.h" />
-    <ClInclude Include="engin\game\h\SpinBlade.h" />
-    <ClInclude Include="engin\game\h\Turret.h" />
     <ClInclude Include="engin\game\h\EnemyManager.h" />
     <ClInclude Include="engin\game\h\Framework.h" />
     <ClInclude Include="engin\game\h\Game.h" />
@@ -294,7 +281,6 @@
     <ClInclude Include="engin\game\h\GameTime.h" />
     <ClInclude Include="engin\game\h\TimeDisplay.h" />
     <ClInclude Include="engin\game\h\ScoreDisplay.h" />
-    <ClInclude Include="engin\game\h\EmojiUI.h" />
     <ClInclude Include="engin\game\h\hoge.h" />
     <ClInclude Include="engin\game\h\LightingMode.h" />
     <ClInclude Include="engin\game\h\Logger.h" />
@@ -303,8 +289,6 @@
     <ClInclude Include="engin\game\h\SceneFactory.h" />
     <ClInclude Include="engin\game\h\SceneManager.h" />
     <ClInclude Include="engin\game\h\ScoreManager.h" />
-    <ClInclude Include="engin\game\h\SpecialMove.h" />
-    <ClInclude Include="engin\game\h\TeleportBomb.h" />
     <ClInclude Include="engin\game\h\LoadingScene.h" />
     <ClInclude Include="engin\game\h\TitleScene.h" />
     <ClInclude Include="engin\game\h\WorldTransform.h" />
@@ -338,7 +322,6 @@
     <ClInclude Include="engin\graphics\h\ParticleManager.h" />
     <ClInclude Include="engin\graphics\h\ParticleEmitter.h" />
     <ClInclude Include="engin\graphics\h\ImguiControl.h" />
-    <ClInclude Include="Yaruyo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

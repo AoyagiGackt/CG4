@@ -3,7 +3,6 @@
  * @brief スコアの管理・保存・ランキングを行うクラス
  */
 #pragma once
-#include "Condition.h"
 #include <vector>
 
 class ScoreManager {
@@ -16,11 +15,10 @@ public:
     void ResetCurrentScore();
 
     /**
-     * @brief プレイヤーの調子に応じたスコアを加算する
-     * @param cond 撃破時のプレイヤー調子
-     * Excellent:500 / Good:300 / Normal:200 / Bad:100 / Terrible:50
+     * @brief スコアを加算する
+     * @param points 加算するポイント（デフォルト200）
      */
-    void AddScore(Condition::ConditionType cond);
+    void AddScore(int points = 200);
 
     int GetCurrentScore() const { return currentScore_; }
 

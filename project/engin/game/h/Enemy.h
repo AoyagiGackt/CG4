@@ -3,7 +3,6 @@
 #include <memory>
 #include <random>
 #include "Bullet.h"
-#include "Condition.h"
 
 class Camera;
 class Model;
@@ -39,14 +38,6 @@ public:
     // 外部操作
     //============================
     void SetPosition(const Vector3 &position);
-    void SetCondition(Condition::ConditionType condition);
-    void RankUpCondition() {
-        if (IsDead()) return;       // 死んでいる敵はランクアップしない
-        int savedHp = hp_;          // 現在のHPを保存
-        condition_.RankUp();
-        ApplyCondition();           // 速度・射撃間隔などを更新
-        hp_ = savedHp;              // HPはリセットしない
-    }
 
     bool IsCounted() const{ return counted_; }
     void SetCounted(bool counted){ counted_ = counted; }
@@ -54,7 +45,6 @@ public:
     //============================
     // Getter（デバッグ用）
     //============================
-    Condition::ConditionType GetCondition() const { return condition_.GetCondition(); }
     int GetHP() const { return hp_; }
     float GetMoveSpeedMultiplier() const { return moveSpeedMultiplier_; }
     int GetShootInterval() const { return shootInterval_; }
@@ -113,11 +103,6 @@ private:
     };
 
     LRDirection lrDirection_ = LRDirection::kRight;
-
-    //============================
-    // Condition
-    //============================
-    Condition condition_;
 
     float moveSpeedMultiplier_ = 1.0f;
     int hp_ = 1;
@@ -186,8 +171,6 @@ private:
     void UpdateJump();
     void HorizontalMoveUpdate();
     void UpdateFacingDirection();
-    void ApplyCondition();
-
 
     //当たり判定
     void ResolveCollisions();

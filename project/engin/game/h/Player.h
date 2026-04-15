@@ -5,7 +5,6 @@
 #pragma once
 #include "Bullet.h"
 #include "Camera.h"
-#include "Condition.h"
 #include "Collision.h"
 #include "GameObject.h"
 #include "Input.h"
@@ -13,10 +12,6 @@
 #include "Model.h"
 #include "Object3d.h"
 #include <memory>
-#include "SpecialMove.h"
-#include "TeleportBomb.h"
-#include "BeamSpecial.h"
-#include "SpinBlade.h"
 
 class EnemyManager;
 /**
@@ -58,21 +53,14 @@ public:
 
 	void SetCameraPosX(float cameraPosX){ cameraPosX_ = cameraPosX; }
 
-	Condition* GetCondition(){ return condition_.get(); }
-
 	/**
 	 * @brief 現在のワールド座標を取得
 	 * @return Vector3 プレイヤーの座標
 	 */
 	Vector3 GetPosition() const{ return player_->GetTransform().translate; }
 
-	float GetConditionSpeedMultiplier() const{
-		return condition_->GetSpeedMultiplier();
-	}
-
-	float GetScrollSpeedMultiplier() const{
-		return condition_->GetScrollSpeedMultiplier();
-	}
+	float GetConditionSpeedMultiplier() const{ return 1.0f; }
+	float GetScrollSpeedMultiplier() const{ return 1.0f; }
 
 	/**
 	 * @brief 弾リストとの当たり判定チェック
@@ -107,60 +95,19 @@ public:
 		}
 	}
 
-	void SetSpecialMove(std::unique_ptr<SpecialMove> specialMove){
-		specialMove_ = std::move(specialMove);
-	}
-
-	void CreateTeleportBomb(Model* model,ModelCommon* common){
-		// Player自身の中で生成
-		auto bomb = std::make_unique<TeleportBomb>();
-		bomb->InitBomb(this,model,common);
-
-		// メンバ変数に代入（これで所有権がPlayerに固定される）
-		specialMove_ = std::move(bomb);
-	}
-
-	void CreateBeamSpecial(Model* model, ModelCommon* common){
-		auto beam = std::make_unique<BeamSpecial>();
-		beam->InitBeam(this, common, model);
-		specialMove_ = std::move(beam);
-	}
-
-
-	void CreateSpinBlade(Model* model, ModelCommon* common) {
-		auto blade = std::make_unique<SpinBlade>();
-		blade->InitBlade(this, model, common);
-
-		specialMove_ = std::move(blade);
-	}
-
 	/**
 	 * @brief 当たり判定用のAABBを取得
 	 * @return AABB プレイヤーの当たり判定ボックス
 	 */
 	AABB GetAABB() const{ return collider_.aabb; }
 
-	void SetSpecialMoveModel(Model* model){ specialMoveModel_ = model; }
-
-
 	Object3d* GetBaseObject() const{ return player_.get(); }
 
 	// 初期化時にセットした元のモデル
 	Model* GetOriginalModel() const{ return originalModel_; }
 
-	// GamePlaySceneから受け取った必殺技用モデル
-	Model* GetSpecialMoveModel() const{ return specialMoveModel_; }
-
 	void SetEnemyManager(EnemyManager* enemyManager){ enemyManager_ = enemyManager; }
 	EnemyManager* GetEnemyManager() const{ return enemyManager_; }
-
-	TeleportBomb* GetTeleportBomb() const{
-		return dynamic_cast<TeleportBomb*>(specialMove_.get());
-	}
-
-	BeamSpecial* GetBeam() const {
-		return dynamic_cast<BeamSpecial*>(specialMove_.get());
-	}
 
 	bool IsInvincible() const{ return invincibleTimer_ > 0; }
 
@@ -182,10 +129,6 @@ public:
 
 	bool IsBuffReady() const{ return isBuffReady_; }
 	void ResetBuffReady(){ isBuffReady_ = false; }
-
-	bool IsSpecialMoveActive() const{
-		return specialMove_ && specialMove_->IsActive();
-	}
 
 	void SetSwipeStock(int stock){ swipeStock_ = stock; }
 
@@ -209,17 +152,12 @@ private:
 
 	Camera* camera_ = nullptr;
 
-	// 必殺技用のモデルポインタ
-	Model* specialMoveModel_ = nullptr;
 	Model* originalModel_ = nullptr;
 
 	EnemyManager* enemyManager_ = nullptr;
 
 	// マップチップフィールドへのポインタ
 	MapChipField* mapField_ = nullptr;
-
-	// 調子管理のポインタ
-	std::unique_ptr<Condition> condition_;
 
 	// 1フレーム前の座標（衝突補正用）
 	Vector3 prevPos_;
@@ -324,12 +262,6 @@ private:
 
 	int totalSwipeCount_ = 0;   // バフ用の累計カウント
 	bool isBuffReady_ = false;  // バフが発生したフラグ
-
-	// --- 必殺技（SpecialMove）関連の追加 ---
-	std::unique_ptr<SpecialMove> specialMove_ = nullptr; // 現在の必殺技
-	bool hasReachedExcellent_ = false;                  // 初めて絶好調になったか
-	bool isSelectingSkill_ = false;                     // スキル選択中か
-
 
 	// --- アニメーション ---
    /// GamePlaySceneから毎フレームセットされるlocalMatrix（単位行列で初期化）

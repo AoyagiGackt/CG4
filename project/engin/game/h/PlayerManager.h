@@ -46,13 +46,8 @@ public:
 	 */
 	Player* GetPlayer() const{ return player_.get(); }
 
-	float GetConditionSpeedMultiplier() const{
-		return player_->GetConditionSpeedMultiplier();
-	}
-
-	float GetScrollSpeedMultiplier() const{
-		return player_->GetScrollSpeedMultiplier();
-	}
+	float GetConditionSpeedMultiplier() const{ return 1.0f; }
+	float GetScrollSpeedMultiplier() const{ return 1.0f; }
 
 private:
 	/** @brief プレイヤー本体のインスタンス */

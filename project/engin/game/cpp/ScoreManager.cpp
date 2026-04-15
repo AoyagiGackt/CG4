@@ -1,6 +1,7 @@
 #include "ScoreManager.h"
 #include <algorithm>
 #include <fstream>
+#include <iterator>
 
 ScoreManager* ScoreManager::GetInstance()
 {
@@ -13,17 +14,9 @@ void ScoreManager::ResetCurrentScore()
     currentScore_ = 0;
 }
 
-void ScoreManager::AddScore(Condition::ConditionType cond)
+void ScoreManager::AddScore(int points)
 {
-    int pts = 200;
-    switch (cond) {
-    case Condition::ConditionType::Excellent: pts = 500; break;
-    case Condition::ConditionType::Good:      pts = 300; break;
-    case Condition::ConditionType::Normal:    pts = 200; break;
-    case Condition::ConditionType::Bad:       pts = 100; break;
-    case Condition::ConditionType::Terrible:  pts =  50; break;
-    }
-    currentScore_ += pts;
+    currentScore_ += points;
 }
 
 void ScoreManager::SubmitAndSave()

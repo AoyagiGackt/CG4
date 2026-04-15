@@ -1,12 +1,9 @@
 ﻿#include "Player.h"
 #include "ImGuiManager.h"
-#include "SpecialMove.h"
-#include "TeleportBomb.h"
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
 #include <vector>
-#include <ConditionUpEffect.h>
 #include <Windows.h>
 
 void Player::Initialize(ModelCommon* modelCommon, Model* model, Input* input, MapChipField* mapField,Camera* camera)
@@ -23,30 +20,10 @@ void Player::Initialize(ModelCommon* modelCommon, Model* model, Input* input, Ma
     input_ = input;
     mapField_ = mapField;
     camera_ = camera;
-
-    condition_ = std::make_unique<Condition>();
-    condition_->Initialize();
 }
 
 void Player::Update()
 {
-    condition_->Update();
-
-
-    // 2. 必殺技の更新と入力受付
-    if(specialMove_){
-        specialMove_->Update();
-
-        // 絶好調の時だけ発動可能
-        bool isExcellent = (condition_->GetCondition() == Condition::ConditionType::Excellent);
-
-        // R1ボタン または Eキー で発動
-        if(isExcellent && (input_->TriggerButton(XINPUT_GAMEPAD_RIGHT_SHOULDER) || input_->TriggerKey(DIK_E))){
-            specialMove_->Activate();
-        }
-    }
-
-
     // 移動前の座標を保存 (衝突解決の基準点)
     prevPos_ = player_->GetTransform().translate;
     Input::Stick stick = input_->GetLeftStick();
@@ -141,16 +118,8 @@ void Player::Update()
     Vector3 worldPos = player_->GetTransform().translate;
     Matrix4x4 worldTransMat = MakeTranslateMatrix(worldPos);
 
-    if(specialMove_ && specialMove_->IsActive()){
-        // ★爆発中はアニメーションを無視し、座標(worldTransMat)だけを適用する
-        // これにより、巨大化したまま移動もできるようになります
-        Matrix4x4 scaleMat = MakeScaleMatrix(player_->GetTransform().scale);
-
-        // スケールと座標を合成（回転は一旦無視）
-        Matrix4x4 finalMatrix = Multiply(scaleMat,worldTransMat);
-        player_->SetLocalMatrix(finalMatrix);
-    } else{
-        // 通常時は今まで通りアニメーション行列と合成
+    {
+        // アニメーション行列と合成
         Matrix4x4 finalMatrix = Multiply(animationMatrix_,worldTransMat);
         player_->SetLocalMatrix(finalMatrix);
     }
@@ -185,8 +154,7 @@ void Player::HandleDash(const Input::Stick& stick)
 
 void Player::HandleMovement(const Input::Stick& stick)
 {
-
-    float currentSpeed = baseSpeed_ * condition_->GetSpeedMultiplier();
+    float currentSpeed = baseSpeed_;
 
     // 左右移動
     velocity_.x = 0.0f;
@@ -216,19 +184,14 @@ void Player::HandleMovement(const Input::Stick& stick)
 
     bool jumpInput = input_->TriggerKey(DIK_W) || input_->TriggerButton(XINPUT_GAMEPAD_A);
 
-    // 現在の調子が絶好調（Excellent）かどうかを判定
-    bool isExcellent = (condition_->GetCondition() == Condition::ConditionType::Excellent);
-
     // ジャンプできる条件：
     // 1. 地面にいる時（通常の1段目ジャンプ）
     // 2. コヨーテタイム中（プラットフォームの端から落ちた直後の猶予）
-    // 3. 空中にいるけど、絶好調(Excellent)で、かつジャンプ回数がまだ1回の時（2段目ジャンプ！）
     bool canGroundJump = onGround_ || (coyoteTimer_ > 0 && jumpCount_ == 0);
-    bool canJump = canGroundJump || (!onGround_ && isExcellent && jumpCount_ < 2);
+    bool canJump = canGroundJump;
 
     if (canJump && jumpInput) {
-        // ジャンプ力を適用（1段目も2段目も調子の倍率が乗ります）
-        velocity_.y = kJumpForce * condition_->GetJumpMultiplier();
+        velocity_.y = kJumpForce;
 
         onGround_ = false;
         justJumped_ = true;
@@ -431,9 +394,6 @@ void Player::TakeDamage(float damageAmount)
     // HPを減らす
     playerHp_ -= damageAmount;
 
-    // どんなダメージでも絶対に調子を1段階下げる！
-    condition_->RankDown();
-
     // ダメージを受けたら無敵時間にする（共通化）
     invincibleTimer_ = 120;
 }
@@ -442,10 +402,6 @@ void Player::Draw()
 {
     if (player_) {
         player_->Draw();
-    }
-
-    if(specialMove_){
-        specialMove_->Draw();
     }
 }
 
@@ -480,10 +436,8 @@ void Player::OnSwipeSuccess(){
     swipeSuccessCount_++;
     totalSwipeCount_++;
 
-    // 3回スワイプで調子を1段階上げる
+    // 3回スワイプで累計カウント
     if(swipeSuccessCount_ >= 3){
-        condition_->RankUp();
-        ConditionUpEffect::Emit(camera_);
         swipeSuccessCount_ = 0;
     }
     if(totalSwipeCount_ >= 10){
