@@ -324,7 +324,6 @@
     <ClInclude Include="engin\graphics\h\ImguiControl.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="Resources\shaders\lighting\LightingMode.hlsli" />
     <None Include="Resources\shaders\object3d\Object3d.hlsli" />
     <None Include="Resources\shaders\Particle\Particle.hlsli" />
