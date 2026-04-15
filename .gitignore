@@ -353,3 +353,7 @@ imgui.ini
 externals/**/x64/
 externals/**/Debug/
 externals/**/Release/
+
+# assimpのlibはCIビルドに必要なため追跡対象にする
+!externals/assimp/lib/Debug/
+!externals/assimp/lib/Release/
