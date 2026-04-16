@@ -125,6 +125,69 @@ void ParticleManager::EmitWithColor(const std::string& name, const Vector3& posi
     particleGroups_[name].particles.push_back(newParticle);
 }
 
+void ParticleManager::EmitEllipse(const std::string& name, const Vector3& position,
+    const Vector3& velocity, const Vector4& color,
+    float lifeTime, float scaleX, float scaleY)
+{
+    assert(particleGroups_.contains(name));
+
+    ParticleGroup& group = particleGroups_[name];
+    if (group.particles.size() >= group.kNumMaxInstance) {
+        return;
+    }
+
+    Particle newParticle;
+    newParticle.transform.scale     = { scaleX, scaleY, 1.0f }; // 非均一スケールで楕円形に
+    newParticle.transform.rotate    = { 0.0f, 0.0f, 0.0f };
+    newParticle.transform.translate = position;
+    newParticle.velocity            = velocity;
+    newParticle.color               = color;
+    newParticle.lifeTime            = lifeTime;
+    newParticle.currentTime         = 0.0f;
+
+    group.particles.push_back(newParticle);
+}
+
+void ParticleManager::EmitSlash(const std::string& name, const Vector3& position,
+    float angle, const Vector4& color, float radius)
+{
+    // ヒットエフェクト：中心から斬撃線が放射状に飛び散る
+    // angle を基準に ±60° の範囲に集中させて「斬られた方向感」を出す
+    const int   kCount    = 6;
+    const float kSpread   = 2.0f;   // 広がり角度（ラジアン全幅）
+    const float kSpeed    = 6.0f;   // 飛散速度（単位/秒）
+    const float kLifeTime = 0.15f;  // 非常に短命でパンチを出す
+
+    for (int i = 0; i < kCount; ++i) {
+        ParticleGroup& group = particleGroups_[name];
+        if (group.particles.size() >= group.kNumMaxInstance) { break; }
+
+        float t = static_cast<float>(i) / static_cast<float>(kCount - 1); // 0 → 1
+
+        // angle を中心に kSpread の範囲で均等に散らす
+        float a = angle - kSpread * 0.5f + kSpread * t;
+
+        // 速度：各ラインの向きへ勢いよく飛ばす
+        float speed = kSpeed * (0.7f + 0.3f * t) * (1.0f / 60.0f);
+        Vector3 vel = { std::cos(a) * speed, std::sin(a) * speed, 0.0f };
+
+        // 内側ほど明るい（中心が白く光るイメージ）
+        float bright = 1.0f - t * 0.3f;
+        Vector4 c = { color.x, color.y, color.z, color.w * bright };
+
+        Particle p;
+        p.transform.scale     = { radius * 0.5f, radius * 0.05f, 1.0f }; // 細い線
+        p.transform.rotate    = { 0.0f, 0.0f, a };                        // 飛散方向に向ける
+        p.transform.translate = position;                                  // 全部同じ中心から出る
+        p.velocity            = vel;
+        p.color               = c;
+        p.lifeTime            = kLifeTime;
+        p.currentTime         = 0.0f;
+
+        group.particles.push_back(p);
+    }
+}
+
 void ParticleManager::CreateRootSignature()
 {
     ID3D12Device* device = dxCommon_->GetDevice();

@@ -101,6 +101,26 @@ public:
 		const Vector3& velocity,const Vector4& color,float lifeTime = 1.0f,float scale = 1.0f);
 
 	/**
+	 * @brief 楕円形パーティクルを1粒発生させる（X/Yを個別にスケーリング）
+	 * @param scaleX 横方向の倍率（大きいほど横長）
+	 * @param scaleY 縦方向の倍率（大きいほど縦長）
+	 */
+	void EmitEllipse(const std::string& name, const Vector3& position,
+		const Vector3& velocity, const Vector4& color,
+		float lifeTime = 1.0f, float scaleX = 2.0f, float scaleY = 1.0f);
+
+	/**
+	 * @brief ヒット斬撃エフェクトを放出する（中心から線が放射状に飛び散る）
+	 * @param name     パーティクルグループ名
+	 * @param position ヒット座標
+	 * @param angle    斬撃の主方向（ラジアン）。この角度を中心に±60°で散る
+	 * @param color    エフェクトの色
+	 * @param radius   線の長さ基準
+	 */
+	void EmitSlash(const std::string& name, const Vector3& position,
+		float angle, const Vector4& color, float radius = 1.0f);
+
+	/**
 	 * @brief 既存のパーティクルグループのテクスチャを変更する
 	 * @param groupName 変更したいパーティクルグループの名前
 	 * @param textureFilePath 新しく適用するテクスチャのパス

@@ -1,5 +1,6 @@
 #include "GamePlayScene.h"
 #include <algorithm>
+#include <cmath>
 #include <commdlg.h>
 #include <fstream>
 #include <sstream>
@@ -90,6 +91,13 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
 
     // ----- エフェクト・進行管理 -----
     ParticleManager::GetInstance()->SetModel(modelBullet_.get());
+
+    // 楕円パーティクルグループ（circle2.png を使用）
+    ParticleManager::GetInstance()->CreateParticleGroup("ellipse", "Resources/circle2.png");
+
+    // 斬撃パーティクルグループ（gradationLine.png を使用）
+    ParticleManager::GetInstance()->CreateParticleGroup("slash", "Resources/gradationLine.png");
+
     EnemyDeathEffect::CreateGroup();
     BulletHitEffect::CreateGroup();
 
@@ -188,6 +196,38 @@ void GamePlayScene::Update()
 
     // UIと描画関連の更新
     UpdateDebugUI();
+
+    // Z キー で斬撃エフェクトを放出
+    if (input_->TriggerKey(DIK_Z)) {
+        ParticleManager::GetInstance()->EmitSlash(
+            "slash",
+            { 12.0f, 3.0f, 0.0f },          // カメラから見えるあたりに仮置き
+            -0.4f,
+            { 0.9f, 0.95f, 1.0f, 1.0f },
+            1.5f
+        );
+    }
+
+    // 楕円パーティクルを一定間隔で放出
+    ellipseParticleTimer_ += 1.0f / 60.0f;
+    while (ellipseParticleTimer_ >= kEllipseEmitInterval) {
+        ellipseParticleTimer_ -= kEllipseEmitInterval;
+
+        // ランダムな方向へ放出（human 周辺）
+        float angle = static_cast<float>(rand() % 360) * (3.14159265f / 180.0f);
+        float speed = 0.02f + static_cast<float>(rand() % 30) / 1000.0f;
+        Vector3 vel = { std::cos(angle) * speed, 0.05f + static_cast<float>(rand() % 20) / 1000.0f, std::sin(angle) * speed };
+
+        ParticleManager::GetInstance()->EmitEllipse(
+            "ellipse",
+            humanPosition_,                              // human の位置から放出
+            vel,
+            { 0.6f, 0.85f, 1.0f, 1.0f },                // 薄い水色
+            1.5f,                                        // 寿命
+            0.4f,                                        // scaleX（横長）
+            0.2f                                         // scaleY（縦細）
+        );
+    }
 
     ParticleManager::GetInstance()->Update(camera_.get());
 }

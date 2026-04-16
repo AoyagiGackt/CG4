@@ -111,6 +111,10 @@ private:
 	// --- 進行・状態管理 ---
 	GameTime gameTime_;
 
+	// --- 楕円パーティクル ---
+	float ellipseParticleTimer_ = 0.0f; ///< 放出タイマー（秒）
+	static constexpr float kEllipseEmitInterval = 0.05f; ///< 放出間隔（秒）
+
 	// --- デバッグ・エディタ関連 ---
 	bool debugScrollPaused_ = false;
 	bool debugSpawnDisabled_ = false;
