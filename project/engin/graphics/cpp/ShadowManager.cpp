@@ -1,7 +1,7 @@
 #include "ShadowManager.h"
 #include "SrvManager.h"
-#include <cmath>
 #include <cassert>
+#include <cmath>
 
 using namespace Microsoft::WRL;
 
@@ -17,18 +17,18 @@ void ShadowManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
     // R32_TYPELESS テクスチャ（DSV: D32_FLOAT, SRV: R32_FLOAT）
     D3D12_HEAP_PROPERTIES defaultHeap { D3D12_HEAP_TYPE_DEFAULT };
     D3D12_RESOURCE_DESC texDesc {};
-    texDesc.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    texDesc.Width              = kShadowMapSize;
-    texDesc.Height             = kShadowMapSize;
-    texDesc.DepthOrArraySize   = 1;
-    texDesc.MipLevels          = 1;
-    texDesc.Format             = DXGI_FORMAT_R32_TYPELESS;
-    texDesc.SampleDesc.Count   = 1;
-    texDesc.Flags              = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+    texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    texDesc.Width = kShadowMapSize;
+    texDesc.Height = kShadowMapSize;
+    texDesc.DepthOrArraySize = 1;
+    texDesc.MipLevels = 1;
+    texDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+    texDesc.SampleDesc.Count = 1;
+    texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
     D3D12_CLEAR_VALUE clearValue {};
-    clearValue.Format               = DXGI_FORMAT_D32_FLOAT;
-    clearValue.DepthStencil.Depth   = 1.0f;
+    clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+    clearValue.DepthStencil.Depth = 1.0f;
     clearValue.DepthStencil.Stencil = 0;
 
     HRESULT hr = device->CreateCommittedResource(
@@ -39,13 +39,13 @@ void ShadowManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
 
     // DSV ヒープ（シャドウマップ専用）
     D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc {};
-    dsvHeapDesc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     dsvHeapDesc.NumDescriptors = 1;
     hr = device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&shadowDsvHeap_));
     assert(SUCCEEDED(hr));
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc {};
-    dsvDesc.Format        = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
     device->CreateDepthStencilView(shadowMapResource_.Get(), &dsvDesc,
         shadowDsvHeap_->GetCPUDescriptorHandleForHeapStart());
@@ -53,10 +53,10 @@ void ShadowManager::Initialize(DirectXCommon* dxCommon, SrvManager* srvManager)
     // SRV（PS でシャドウマップを読む用）
     shadowSrvIndex_ = srvManager->Allocate();
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc {};
-    srvDesc.Format                  = DXGI_FORMAT_R32_FLOAT;
-    srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Texture2D.MipLevels     = 1;
+    srvDesc.Texture2D.MipLevels = 1;
     device->CreateShaderResourceView(shadowMapResource_.Get(), &srvDesc,
         srvManager->GetCPUDescriptorHandle(shadowSrvIndex_));
 }
@@ -85,7 +85,10 @@ void ShadowManager::Update(const Vector3& lightDir)
     fwd = { fwd.x / fwdLen, fwd.y / fwdLen, fwd.z / fwdLen };
 
     Vector3 up = { 0.0f, 1.0f, 0.0f };
-    if (std::abs(fwd.y) > 0.99f) up = { 0.0f, 0.0f, 1.0f };
+
+    if (std::abs(fwd.y) > 0.99f) {
+        up = { 0.0f, 0.0f, 1.0f };
+    }
 
     // right = up × fwd
     Vector3 right = {
@@ -104,22 +107,34 @@ void ShadowManager::Update(const Vector3& lightDir)
         fwd.x * right.y - fwd.y * right.x,
     };
 
-    float dotR = right.x * lightEye.x  + right.y * lightEye.y  + right.z * lightEye.z;
+    float dotR = right.x * lightEye.x + right.y * lightEye.y + right.z * lightEye.z;
     float dotU = realUp.x * lightEye.x + realUp.y * lightEye.y + realUp.z * lightEye.z;
-    float dotF = fwd.x * lightEye.x    + fwd.y * lightEye.y    + fwd.z * lightEye.z;
+    float dotF = fwd.x * lightEye.x + fwd.y * lightEye.y + fwd.z * lightEye.z;
 
     // View 行列（行ベクトル形式）
     Matrix4x4 view = {};
-    view.m[0][0] = right.x;   view.m[0][1] = right.y;   view.m[0][2] = right.z;   view.m[0][3] = 0;
-    view.m[1][0] = realUp.x;  view.m[1][1] = realUp.y;  view.m[1][2] = realUp.z;  view.m[1][3] = 0;
-    view.m[2][0] = fwd.x;     view.m[2][1] = fwd.y;     view.m[2][2] = fwd.z;     view.m[2][3] = 0;
-    view.m[3][0] = -dotR;     view.m[3][1] = -dotU;     view.m[3][2] = -dotF;     view.m[3][3] = 1;
+    view.m[0][0] = right.x;
+    view.m[0][1] = right.y;
+    view.m[0][2] = right.z;
+    view.m[0][3] = 0;
+    view.m[1][0] = realUp.x;
+    view.m[1][1] = realUp.y;
+    view.m[1][2] = realUp.z;
+    view.m[1][3] = 0;
+    view.m[2][0] = fwd.x;
+    view.m[2][1] = fwd.y;
+    view.m[2][2] = fwd.z;
+    view.m[2][3] = 0;
+    view.m[3][0] = -dotR;
+    view.m[3][1] = -dotU;
+    view.m[3][2] = -dotF;
+    view.m[3][3] = 1;
 
     // 平行投影行列（DirectX 深度 0-1）
-    float w    = 40.0f;
-    float h    = 25.0f;
-    float nearZ =  0.1f;
-    float farZ  = 80.0f;
+    float w = 40.0f;
+    float h = 25.0f;
+    float nearZ = 0.1f;
+    float farZ = 80.0f;
 
     Matrix4x4 proj = {};
     proj.m[0][0] = 2.0f / w;
@@ -139,10 +154,10 @@ void ShadowManager::BeginShadowPass(ID3D12GraphicsCommandList* commandList)
 {
     if (!shadowMapInDepthWrite_) {
         D3D12_RESOURCE_BARRIER barrier {};
-        barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-        barrier.Transition.pResource   = shadowMapResource_.Get();
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Transition.pResource = shadowMapResource_.Get();
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
-        barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
         commandList->ResourceBarrier(1, &barrier);
     }
@@ -154,7 +169,7 @@ void ShadowManager::BeginShadowPass(ID3D12GraphicsCommandList* commandList)
     commandList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
     D3D12_VIEWPORT vp = { 0, 0, (float)kShadowMapSize, (float)kShadowMapSize, 0.0f, 1.0f };
-    D3D12_RECT     scissor = { 0, 0, (LONG)kShadowMapSize, (LONG)kShadowMapSize };
+    D3D12_RECT scissor = { 0, 0, (LONG)kShadowMapSize, (LONG)kShadowMapSize };
     commandList->RSSetViewports(1, &vp);
     commandList->RSSetScissorRects(1, &scissor);
 }
@@ -162,10 +177,10 @@ void ShadowManager::BeginShadowPass(ID3D12GraphicsCommandList* commandList)
 void ShadowManager::EndShadowPass(ID3D12GraphicsCommandList* commandList)
 {
     D3D12_RESOURCE_BARRIER barrier {};
-    barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    barrier.Transition.pResource   = shadowMapResource_.Get();
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Transition.pResource = shadowMapResource_.Get();
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_DEPTH_WRITE;
-    barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
     commandList->ResourceBarrier(1, &barrier);
     shadowMapInDepthWrite_ = false;

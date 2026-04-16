@@ -28,7 +28,9 @@ void Audio::Initialize()
 
 void Audio::Finalize()
 {
-    if (!xAudio2_) { return; }
+    if (!xAudio2_) {
+        return;
+    }
 
     StopBGM();
     StopAllSE();
@@ -54,6 +56,7 @@ SoundData Audio::LoadAudio(const std::string& filename)
     std::wstring wFilename = StringUtility::ConvertString(filename);
     ComPtr<IMFSourceReader> pSourceReader;
     hr = MFCreateSourceReaderFromURL(wFilename.c_str(), nullptr, &pSourceReader);
+    
     if (FAILED(hr)) {
         Logger::Log("Error: Failed to open audio file: " + filename + "\n");
         assert(false);
@@ -65,6 +68,7 @@ SoundData Audio::LoadAudio(const std::string& filename)
     pMediaType->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio);
     pMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
     hr = pSourceReader->SetCurrentMediaType(MF_SOURCE_READER_FIRST_AUDIO_STREAM, nullptr, pMediaType.Get());
+    
     if (FAILED(hr)) {
         Logger::Log("Error: Failed to set media type for: " + filename + "\n");
         assert(false);
@@ -96,8 +100,14 @@ SoundData Audio::LoadAudio(const std::string& filename)
         DWORD flags = 0;
         ComPtr<IMFSample> pSample;
         hr = pSourceReader->ReadSample(MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, nullptr, &flags, nullptr, &pSample);
-        if (FAILED(hr) || (flags & MF_SOURCE_READERF_ENDOFSTREAM)) { break; }
-        if (!pSample) { continue; }
+        
+        if (FAILED(hr) || (flags & MF_SOURCE_READERF_ENDOFSTREAM)) {
+            break;
+        }
+
+        if (!pSample) {
+            continue;
+        }
 
         ComPtr<IMFMediaBuffer> pBuffer;
         pSample->ConvertToContiguousBuffer(&pBuffer);
@@ -133,6 +143,7 @@ void Audio::CleanupFinishedSE()
         std::remove_if(seVoices_.begin(), seVoices_.end(), [](IXAudio2SourceVoice* v) {
             XAUDIO2_VOICE_STATE state;
             v->GetState(&state);
+            
             if (state.BuffersQueued == 0) {
                 v->DestroyVoice();
                 return true;

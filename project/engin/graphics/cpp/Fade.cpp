@@ -29,9 +29,13 @@ void Fade::Update(){
 
     // 進捗率 (0.0f ～ 1.0f)
     float progress = counter_ / duration_;
-    if(progress > 1.0f){ progress = 1.0f; }
+    
+    if(progress > 1.0f){ 
+        progress = 1.0f;
+    }
 
     float alpha = 0.0f;
+    
     if(status_ == Status::FadeIn){
         alpha = 1.0f - progress; // 1.0(黒) -> 0.0(透明)
     } else if(status_ == Status::FadeOut){

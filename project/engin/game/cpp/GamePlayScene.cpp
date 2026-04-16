@@ -228,8 +228,9 @@ static std::string OpenFileDialog(const char* filter, const char* initialDir = n
 void GamePlayScene::UpdateDebugUI()
 {
 #ifdef USE_IMGUI
-    if (!imguiManager_)
+    if (!imguiManager_) {
         return;
+    }
 
     const auto& enemies = enemyManager_->GetEnemies();
 
@@ -358,14 +359,22 @@ void GamePlayScene::UpdateDebugUI()
         ImGui::TextColored(ImVec4(1, 1, 0, 1), "[Camera]");
         ImGui::Separator();
         Vector3 pos = camera_->GetTranslate();
-        if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
+        if (ImGui::DragFloat3("Position", &pos.x, 0.1f)) {
             camera_->SetTranslate(pos);
+        }
+
         Vector3 rot = camera_->GetRotate();
-        if (ImGui::DragFloat3("Rotation", &rot.x, 0.01f))
+        
+        if (ImGui::DragFloat3("Rotation", &rot.x, 0.01f)) {
             camera_->SetRotate(rot);
+        }
+
         ImGui::Separator();
-        if (ImGui::Button("Save##inspCam"))
+        
+        if (ImGui::Button("Save##inspCam")) {
             SaveCameraParams();
+        }
+
         break;
     }
 
@@ -373,36 +382,54 @@ void GamePlayScene::UpdateDebugUI()
         ImGui::TextColored(ImVec4(0.2f, 1, 0.4f, 1), "[Player]");
         ImGui::Separator();
         Vector3 pos = playerManager_->GetPlayer()->GetPosition();
-        if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
+        
+        if (ImGui::DragFloat3("Position", &pos.x, 0.1f)) {
             playerManager_->GetPlayer()->SetPosition(pos);
+        }
+
         float hp = playerManager_->GetPlayer()->GetHP();
-        if (ImGui::SliderFloat("HP", &hp, 0.0f, 1000.0f))
+        
+        if (ImGui::SliderFloat("HP", &hp, 0.0f, 1000.0f)) {
             playerManager_->GetPlayer()->SetHP(hp);
+        }
+
         bool inv = playerManager_->GetPlayer()->IsInvincible();
-        if (ImGui::Checkbox("Invincible", &inv))
+        
+        if (ImGui::Checkbox("Invincible", &inv)) {
             playerManager_->GetPlayer()->SetInvincible(inv);
+        }
+
         ImGui::Separator();
         ImGui::TextDisabled("Model");
         ImGui::TextDisabled("OBJ : %.30s", playerObjPath_.c_str());
         ImGui::TextDisabled("TEX : %.30s", playerTexPath_.c_str());
+        
         if (ImGui::Button("Browse OBJ##pl")) {
             std::string p = OpenFileDialog("OBJ Files\0*.obj\0All Files\0*.*\0\0", "Resources");
+            
             if (!p.empty()) {
                 playerObjPath_ = p;
                 modelPlayer_->Initialize(modelCommon_.get(), playerObjPath_, playerTexPath_);
             }
         }
+        
         ImGui::SameLine();
+        
         if (ImGui::Button("Browse Tex##pl")) {
             std::string p = OpenFileDialog("PNG Files\0*.png\0All Files\0*.*\0\0", "Resources");
+            
             if (!p.empty()) {
                 playerTexPath_ = p;
                 modelPlayer_->Initialize(modelCommon_.get(), playerObjPath_, playerTexPath_);
             }
         }
+
         ImGui::SameLine();
-        if (ImGui::Button("Save##inspPl"))
+        
+        if (ImGui::Button("Save##inspPl")) {
             SaveModelPaths();
+        }
+
         break;
     }
 
@@ -411,16 +438,23 @@ void GamePlayScene::UpdateDebugUI()
         ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "[Enemy %d]", editorSelectedIndex_);
         ImGui::Separator();
         Vector3 pos = e->GetPosition();
-        if (ImGui::DragFloat3("Position", &pos.x, 0.1f))
+        
+        if (ImGui::DragFloat3("Position", &pos.x, 0.1f)) {
             e->SetPosition(pos);
+        }
+
         ImGui::Text("HP            : %d", e->GetHP());
         ImGui::Text("State         : %s", e->GetStateName());
         ImGui::Text("MoveSpeed x   : %.2f", e->GetMoveSpeedMultiplier());
         ImGui::Text("ShootInterval : %d", e->GetShootInterval());
-        if (ImGui::Button("Kill"))
+        
+        if (ImGui::Button("Kill")) {
             e->Damage(9999);
+        }
+
         ImGui::Separator();
         ImGui::TextDisabled("Model (全敵に反映)");
+        
         if (ImGui::Button("Browse OBJ##en")) {
             std::string p = OpenFileDialog("OBJ Files\0*.obj\0All Files\0*.*\0\0", "Resources");
             if (!p.empty()) {
@@ -428,7 +462,9 @@ void GamePlayScene::UpdateDebugUI()
                 modelEnemy_->Initialize(modelCommon_.get(), enemyObjPath_, enemyTexPath_);
             }
         }
+
         ImGui::SameLine();
+        
         if (ImGui::Button("Browse Tex##en")) {
             std::string p = OpenFileDialog("PNG Files\0*.png\0All Files\0*.*\0\0", "Resources");
             if (!p.empty()) {
@@ -436,9 +472,13 @@ void GamePlayScene::UpdateDebugUI()
                 modelEnemy_->Initialize(modelCommon_.get(), enemyObjPath_, enemyTexPath_);
             }
         }
+
         ImGui::SameLine();
-        if (ImGui::Button("Save##inspEn"))
+        
+        if (ImGui::Button("Save##inspEn")) {
             SaveModelPaths();
+        }
+
         break;
     }
 
@@ -476,19 +516,31 @@ void GamePlayScene::UpdateDebugUI()
         ImGui::TextColored(ImVec4(1, 0.8f, 0.2f, 1), "[Enemy Settings]");
         ImGui::Separator();
         int spawnInterval = enemyManager_->GetSpawnInterval();
-        if (ImGui::SliderInt("Spawn Interval(f)", &spawnInterval, 30, 600))
+        
+        if (ImGui::SliderInt("Spawn Interval(f)", &spawnInterval, 30, 600)) {
             enemyManager_->SetSpawnInterval(spawnInterval);
+        }
+
         ImGui::SameLine();
         ImGui::TextDisabled("%.1fs", spawnInterval / 60.0f);
         int maxEnemy = enemyManager_->GetMaxEnemy();
-        if (ImGui::SliderInt("Max Enemy", &maxEnemy, 1, 30))
+        
+        if (ImGui::SliderInt("Max Enemy", &maxEnemy, 1, 30)) {
             enemyManager_->SetMaxEnemy(maxEnemy);
+        }
+
         ImGui::Separator();
-        if (ImGui::Button("Save##inspES"))
+        
+        if (ImGui::Button("Save##inspES")) {
             SaveEnemyParams();
+        }
+
         ImGui::SameLine();
-        if (ImGui::Button("Load##inspES"))
+        
+        if (ImGui::Button("Load##inspES")) {
             LoadEnemyParams();
+        }
+
         break;
     }
 
@@ -501,38 +553,54 @@ void GamePlayScene::UpdateDebugUI()
         // 名前変更
         static int lastUIIdx = -2;
         static char uiNameBuf[64] = {};
+        
         if (lastUIIdx != editorSelectedIndex_) {
             lastUIIdx = editorSelectedIndex_;
             strncpy_s(uiNameBuf, entry.name.c_str(), sizeof(uiNameBuf) - 1);
         }
+
         ImGui::SetNextItemWidth(-1);
-        if (ImGui::InputText("##uiname", uiNameBuf, sizeof(uiNameBuf)))
+        
+        if (ImGui::InputText("##uiname", uiNameBuf, sizeof(uiNameBuf))) {
             entry.name = uiNameBuf;
+        }
 
         ImGui::Separator();
 
         // 位置・サイズ・回転
         Vector2 pos = sp->GetPosition();
-        if (ImGui::DragFloat2("Position", &pos.x, 1.0f))
+        
+        if (ImGui::DragFloat2("Position", &pos.x, 1.0f)) {
             sp->SetPosition(pos);
+        }
+
         Vector2 sz = sp->GetSize();
-        if (ImGui::DragFloat2("Size", &sz.x, 1.0f, 1.0f, 4096.0f))
+        
+        if (ImGui::DragFloat2("Size", &sz.x, 1.0f, 1.0f, 4096.0f)) {
             sp->SetSize(sz);
+        }
+
         float rot = sp->GetRotation();
-        if (ImGui::DragFloat("Rotation", &rot, 0.01f))
+        
+        if (ImGui::DragFloat("Rotation", &rot, 0.01f)) {
             sp->SetRotation(rot);
+        }
 
         // 色
         Vector4 col = sp->GetColor();
-        if (ImGui::ColorEdit4("Color", &col.x))
+        
+        if (ImGui::ColorEdit4("Color", &col.x)) {
             sp->SetColor(col);
+        }
 
         ImGui::Separator();
 
         // テクスチャ
         ImGui::TextDisabled("%.40s", entry.texPath.empty() ? "(no texture)" : entry.texPath.c_str());
+        
         if (ImGui::Button("Browse##uitex")) {
             std::string p = OpenFileDialog("PNG Files\0*.png\0All Files\0*.*\0\0", "Resources");
+            
             if (!p.empty()) {
                 entry.texPath = p;
                 sp->SetTexture(p);
@@ -540,6 +608,7 @@ void GamePlayScene::UpdateDebugUI()
         }
 
         ImGui::Separator();
+        
         if (ImGui::Button("Delete##ui")) {
             uiElements_.erase(uiElements_.begin() + editorSelectedIndex_);
             editorSelectedType_ = SelectedType::None;
@@ -548,12 +617,18 @@ void GamePlayScene::UpdateDebugUI()
             SaveUILayout();
         } else {
             ImGui::SameLine();
-            if (ImGui::Button("Save##inspUI"))
+            
+            if (ImGui::Button("Save##inspUI")) {
                 SaveUILayout();
+            }
+
             ImGui::SameLine();
-            if (ImGui::Button("Load##inspUI"))
+            
+            if (ImGui::Button("Load##inspUI")) {
                 LoadUILayout();
+            }
         }
+
         break;
     }
 
@@ -577,19 +652,27 @@ void GamePlayScene::UpdateDebugUI()
     if (ImGui::CollapsingHeader("Score")) {
         ImGui::Text("Current : %d", ScoreManager::GetInstance()->GetCurrentScore());
         const auto& ranking = ScoreManager::GetInstance()->GetRanking();
-        if (ranking.empty())
+        
+        if (ranking.empty()) {
             ImGui::TextDisabled("  (no records)");
-        for (int i = 0; i < (int)ranking.size(); ++i)
+        }
+
+        for (int i = 0; i < (int)ranking.size(); ++i) {
             ImGui::Text("  %2d. %d", i + 1, ranking[i]);
-        if (ImGui::Button("Reset All Scores"))
+        }
+
+        if (ImGui::Button("Reset All Scores")) {
             ScoreManager::GetInstance()->ResetAllScores();
+        }
     }
 
     // ゲーム時刻
     if (ImGui::CollapsingHeader("Game Time")) {
         ImGui::Text("Time : %02d:%02d", gameTime_.GetHour(), gameTime_.GetMinute());
-        if (ImGui::Button("Skip 1 Hour"))
+        
+        if (ImGui::Button("Skip 1 Hour")) {
             gameTime_.SkipMinutes(60.0f);
+        }
     }
 
     // スポーン
@@ -600,21 +683,29 @@ void GamePlayScene::UpdateDebugUI()
         ImGui::SameLine();
         ImGui::SetNextItemWidth(90);
         ImGui::DragFloat("Y##sp", &spawnY, 0.1f);
-        if (ImGui::Button("Spawn Enemy"))
+        
+        if (ImGui::Button("Spawn Enemy")) {
             enemyManager_->SpawnEnemy({ spawnX, spawnY, 0.0f });
+        }
     }
 
     // アクション
     if (ImGui::CollapsingHeader("Actions")) {
         if (ImGui::Button("Kill All Enemies")) {
-            for (auto& e : enemies)
+            for (auto& e : enemies) {
                 e->Damage(9999);
+            }
         }
-        if (ImGui::Button("Game Clear"))
+
+        if (ImGui::Button("Game Clear")) {
             SceneManager::GetInstance()->ChangeScene("CLEAR");
+        }
+
         ImGui::SameLine();
-        if (ImGui::Button("Game Over"))
+        
+        if (ImGui::Button("Game Over")) {
             SceneManager::GetInstance()->ChangeScene("GAMEOVER");
+        }
     }
 
     // デバッグコントロール
@@ -634,6 +725,7 @@ void GamePlayScene::UpdateDebugUI()
         ImGui::Text("SwipeReady : %s", player->IsSwipeReady() ? "YES" : "NO");
         ImGui::Text("Stock      : %d", player->GetSwipeStock());
         ImGui::Text("SwipeCount : %d / 3", player->GetSwipeSuccessCount());
+        
         if (ImGui::Button("Add Stock x3")) {
             player->OnEnemyDefeated();
             player->OnEnemyDefeated();
@@ -649,15 +741,18 @@ void GamePlayScene::UpdateDebugUI()
     ImGui::SetNextWindowPos(ImVec2(230, 0), ImGuiCond_Once);
     ImGui::SetNextWindowSize(ImVec2(160, 60), ImGuiCond_Once);
     ImGui::Begin("Edit Mode", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+    
     if (debugEditMode_) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.3f, 0.1f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.4f, 0.2f, 1.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.6f, 0.2f, 0.0f, 1.0f));
+        
         if (ImGui::Button("EDIT MODE ON", ImVec2(-1, 0))) {
             debugEditMode_ = false;
             debugScrollPaused_ = false;
             debugSpawnDisabled_ = false;
         }
+
         ImGui::PopStyleColor(3);
     } else {
         if (ImGui::Button("EDIT MODE OFF", ImVec2(-1, 0))) {
@@ -666,6 +761,7 @@ void GamePlayScene::UpdateDebugUI()
             debugSpawnDisabled_ = true;
         }
     }
+
     ImGui::End();
 
     // =====================================================
@@ -678,22 +774,32 @@ void GamePlayScene::UpdateDebugUI()
     Vector3 camPos = camera_->GetTranslate();
     Vector3 camRot = camera_->GetRotate();
 
-    if (ImGui::DragFloat3("Pos", &camPos.x, 0.1f))
+    if (ImGui::DragFloat3("Pos", &camPos.x, 0.1f)) {
         camera_->SetTranslate(camPos);
-    if (ImGui::DragFloat3("Rot", &camRot.x, 0.01f))
+    }
+
+    if (ImGui::DragFloat3("Rot", &camRot.x, 0.01f)) {
         camera_->SetRotate(camRot);
+    }
 
     ImGui::Spacing();
+    
     if (ImGui::Button("Center")) {
         camera_->SetTranslate({ 0.0f, 0.0f, 0.0f });
         camera_->SetRotate({ 0.0f, 0.0f, 0.0f });
     }
+
     ImGui::SameLine();
-    if (ImGui::Button("Save##cam"))
+    
+    if (ImGui::Button("Save##cam")) {
         SaveCameraParams();
+    }
+
     ImGui::SameLine();
-    if (ImGui::Button("Load##cam"))
+    
+    if (ImGui::Button("Load##cam")) {
         LoadCameraParams();
+    }
 
     ImGui::End();
 #endif
@@ -707,9 +813,13 @@ static float ReadJsonFloat(const std::string& src, const std::string& key, float
 {
     std::string needle = "\"" + key + "\": ";
     auto pos = src.find(needle);
-    if (pos == std::string::npos)
+    
+    if (pos == std::string::npos) {
         return def;
+    }
+
     pos += needle.size();
+    
     try {
         return std::stof(src.substr(pos));
     } catch (...) {
@@ -721,9 +831,12 @@ static int ReadJsonInt(const std::string& src, const std::string& key, int def)
 {
     std::string needle = "\"" + key + "\": ";
     auto pos = src.find(needle);
-    if (pos == std::string::npos)
+    if (pos == std::string::npos) {
         return def;
+    }
+
     pos += needle.size();
+    
     try {
         return std::stoi(src.substr(pos));
     } catch (...) {
@@ -735,17 +848,28 @@ static std::string ReadJsonString(const std::string& src, const std::string& key
 {
     std::string needle = "\"" + key + "\":";
     auto pos = src.find(needle);
-    if (pos == std::string::npos)
+    
+    if (pos == std::string::npos) {
         return def;
+    }
+
     pos += needle.size();
-    while (pos < src.size() && (src[pos] == ' ' || src[pos] == '\t'))
+    
+    while (pos < src.size() && (src[pos] == ' ' || src[pos] == '\t')) {
         pos++;
-    if (pos >= src.size() || src[pos] != '"')
+    }
+
+    if (pos >= src.size() || src[pos] != '"') {
         return def;
+    }
+
     pos++;
     auto end = src.find('"', pos);
-    if (end == std::string::npos)
+    
+    if (end == std::string::npos) {
         return def;
+    }
+
     return src.substr(pos, end - pos);
 }
 
@@ -753,8 +877,11 @@ static std::string ReadJsonString(const std::string& src, const std::string& key
 void GamePlayScene::SaveCameraParams()
 {
     std::ofstream f("Resources/debug_camera.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     Vector3 cp = camera_->GetTranslate();
     Vector3 cr = camera_->GetRotate();
     f << "{\n";
@@ -770,8 +897,11 @@ void GamePlayScene::SaveCameraParams()
 void GamePlayScene::LoadCameraParams()
 {
     std::ifstream f("Resources/debug_camera.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     std::string src((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
     Vector3 cp = {
         ReadJsonFloat(src, "camera_pos_x", camera_->GetTranslate().x),
@@ -791,8 +921,11 @@ void GamePlayScene::LoadCameraParams()
 void GamePlayScene::SaveEnemyParams()
 {
     std::ofstream f("Resources/debug_enemy.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     f << "{\n";
     f << "  \"spawn_interval\": " << enemyManager_->GetSpawnInterval() << ",\n";
     f << "  \"max_enemy\": " << enemyManager_->GetMaxEnemy() << "\n";
@@ -802,8 +935,11 @@ void GamePlayScene::SaveEnemyParams()
 void GamePlayScene::LoadEnemyParams()
 {
     std::ifstream f("Resources/debug_enemy.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     std::string src((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
     enemyManager_->SetSpawnInterval(ReadJsonInt(src, "spawn_interval", enemyManager_->GetSpawnInterval()));
     enemyManager_->SetMaxEnemy(ReadJsonInt(src, "max_enemy", enemyManager_->GetMaxEnemy()));
@@ -813,8 +949,11 @@ void GamePlayScene::LoadEnemyParams()
 void GamePlayScene::SaveModelPaths()
 {
     std::ofstream f("Resources/debug_models.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     f << "{\n";
     f << "  \"player_obj\": \"" << playerObjPath_ << "\",\n";
     f << "  \"player_tex\": \"" << playerTexPath_ << "\",\n";
@@ -826,16 +965,22 @@ void GamePlayScene::SaveModelPaths()
 void GamePlayScene::LoadModelPaths()
 {
     std::ifstream f("Resources/debug_models.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     std::string src((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 
     // 文字列値を読む
     auto readStr = [&](const std::string& key, const std::string& def) -> std::string {
         std::string needle = "\"" + key + "\": \"";
         auto pos = src.find(needle);
-        if (pos == std::string::npos)
+        
+        if (pos == std::string::npos) {
             return def;
+        }
+
         pos += needle.size();
         auto end = src.find('"', pos);
         return (end == std::string::npos) ? def : src.substr(pos, end - pos);
@@ -854,10 +999,14 @@ void GamePlayScene::LoadModelPaths()
 void GamePlayScene::SaveUILayout()
 {
     std::ofstream f("Resources/debug_ui.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     f << "{\n";
     f << "  \"count\": " << uiElements_.size();
+    
     for (int i = 0; i < (int)uiElements_.size(); i++) {
         const UIEntry& e = uiElements_[i];
         Sprite* sp = e.sprite.get();
@@ -878,14 +1027,18 @@ void GamePlayScene::SaveUILayout()
         f << "  \"ui_" << i << "_col_b\":  " << col.z << ",\n";
         f << "  \"ui_" << i << "_col_a\":  " << col.w;
     }
+
     f << "\n}\n";
 }
 
 void GamePlayScene::LoadUILayout()
 {
     std::ifstream f("Resources/debug_ui.json");
-    if (!f)
+    
+    if (!f) {
         return;
+    }
+
     std::string src((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 
     int count = ReadJsonInt(src, "count", 0);
@@ -926,8 +1079,10 @@ void GamePlayScene::DrawShadowPass()
 
     playerManager_->DrawShadow();
     enemyManager_->DrawShadow();
-    for (const auto& bullet : bullets_)
+    
+    for (const auto& bullet : bullets_) {
         bullet->DrawShadow();
+    }
 
     shadowManager_->EndShadowPass(commandList);
 
@@ -1052,7 +1207,7 @@ void GamePlayScene::Draw()
 				pos = {450.0f, 100.0f};
 				size = flavorSize;
 			} else if(displayTimer_ <= 3.5f){
-				// 3. 右上へ移動 (3.0s ～ 3.5s)
+				// 3. 右上へ移動 (3.0s ～ 3.5f)
 				float t = (displayTimer_ - 3.0f) / 0.5f;
 				pos.x = 450.0f + (1050.0f - 450.0f) * t;
 				pos.y = 100.0f + (120.0f - 100.0f) * t;

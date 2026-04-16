@@ -28,6 +28,7 @@ void SceneManager::Initialize(DirectXCommon* dxCommon, Input* input, Audio* audi
     fade_.Initialize(spriteCommon_.get());
 
     auto gameplayScene = dynamic_cast<GamePlayScene*>(currentScene_.get());
+    
     if (gameplayScene) {
         gameplayScene->SetImGuiManager(imguiManager_);
     }
@@ -53,6 +54,7 @@ void SceneManager::Update()
 
         // ImGuiのセット
         auto gameplayScene = dynamic_cast<GamePlayScene*>(currentScene_.get());
+        
         if (gameplayScene) {
             gameplayScene->SetImGuiManager(imguiManager_);
         }

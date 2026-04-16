@@ -23,6 +23,7 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& modelFilePat
     // 拡張子で読み込み関数を切り替える
     std::string ext = modelFilePath.substr(modelFilePath.find_last_of('.') + 1);
     std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return std::tolower(c); });
+    
     if (ext == "obj") {
         LoadObjFile(modelFilePath);
     } else {
@@ -137,6 +138,7 @@ void Model::LoadObjFile(const std::string& filePath)
 
                 // 頂点データを作成して一時保存
                 VertexData vd;
+                
                 if (indices[0] > 0) {
                     vd.position = positions[indices[0] - 1];
                 }

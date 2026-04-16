@@ -116,7 +116,10 @@ void Object3dCommon::UpdateLight(float timeRatio)
 
 Vector3 Object3dCommon::GetLightDirection() const
 {
-    if (!lightData_) { return { 0.0f, -1.0f, 0.0f }; }
+    if (!lightData_) { 
+        return { 0.0f, -1.0f, 0.0f }; 
+    }
+
     return lightData_->direction;
 }
 

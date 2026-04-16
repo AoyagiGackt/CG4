@@ -35,7 +35,7 @@ void EnemyManager::SpawnEnemy(const Vector3& position) {
 void EnemyManager::Update(Camera* camera, std::list<std::unique_ptr<Bullet>>& playerBullets, Player* player, float scrollMultiplier) {
 
 	// スポーン管理
-	if (!debugSpawnDisabled_) spawnTimer_++;
+	if (!debugSpawnDisabled_) { spawnTimer_++; }
 	if (!debugSpawnDisabled_ && spawnTimer_ > spawnInterval_ && enemies_.size() < (size_t)maxEnemy_) {
 		float x = 20.0f + (rand() % 5);
 		SpawnEnemy({ x,3,0 });

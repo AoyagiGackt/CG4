@@ -49,7 +49,7 @@ void LoadingScene::Update() {
     }
 
     bgSprite_->Update();
-    for (int i = 0; i < 3; ++i) dotSprites_[i]->Update();
+    for (int i = 0; i < 3; ++i) { dotSprites_[i]->Update(); }
 
     // 最低表示時間が過ぎたら次のシーンへ（一度だけ）
     if (!sceneChangeRequested_ && timer_ >= kMinDisplayTime) {
@@ -64,7 +64,7 @@ void LoadingScene::Update() {
 void LoadingScene::Draw() {
     spriteCommon_->CommonDrawSettings();
     bgSprite_->Draw();
-    for (int i = 0; i < 3; ++i) dotSprites_[i]->Draw();
+    for (int i = 0; i < 3; ++i) { dotSprites_[i]->Draw(); }
 }
 
 void LoadingScene::Finalize() {

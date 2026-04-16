@@ -85,6 +85,7 @@ void Sprite::AdjustTextureSize() {
         uvPos.x += uvSize.x;
         uvSize.x = -uvSize.x;
     }
+
     if (isFlipY_) {
         uvPos.y += uvSize.y;
         uvSize.y = -uvSize.y;

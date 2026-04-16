@@ -19,7 +19,7 @@ void TeleportBomb::Initialize(Player*){
 }
 
 void TeleportBomb::Update(){
-	if(state_ == State::None || !projectileObject_) return;
+	if (state_ == State::None || !projectileObject_) { return; }
 
 	switch(state_){
 	case State::ProjectileFlying:
@@ -65,7 +65,7 @@ void TeleportBomb::Draw(){
 }
 
 void TeleportBomb::Activate(){
-	if(!player_ || !projectileObject_) return;
+	if (!player_ || !projectileObject_) { return; }
 
 	switch(state_){
 	case State::None:
@@ -111,7 +111,7 @@ void TeleportBomb::Activate(){
 			const float kHitHeightLimit = 3.0f;
 
 			for(auto& enemy : enemies){
-				if(!enemy) continue;
+				if (!enemy) { continue; }
 
 				Vector3 enemyPos = enemy->GetPosition();
 				float dx = enemyPos.x - projectilePos_.x;

@@ -58,6 +58,7 @@ void DirectXCommon::Finalize()
     // GPU の処理がすべて終わるまで待つ
     fenceValue_++;
     commandQueue_->Signal(fence_.Get(), fenceValue_);
+
     if (fence_->GetCompletedValue() < fenceValue_) {
         fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
         WaitForSingleObject(fenceEvent_, INFINITE);
@@ -65,8 +66,10 @@ void DirectXCommon::Finalize()
 
     // スワップチェーンのフルスクリーン解除（解放前に必須）
     BOOL fullscreen = FALSE;
+
     if (swapChain_) {
         swapChain_->GetFullscreenState(&fullscreen, nullptr);
+
         if (fullscreen) {
             swapChain_->SetFullscreenState(FALSE, nullptr);
         }
@@ -204,6 +207,7 @@ IDxcBlob* DirectXCommon::CompileShader(const std::wstring& filePath, const wchar
     // 警告・エラー確認
     IDxcBlobUtf8* shaderError = nullptr;
     shaderResult->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&shaderError), nullptr);
+
     if (shaderError != nullptr && shaderError->GetStringLength() != 0) {
         Logger::Log(shaderError->GetStringPointer());
         assert(false);
@@ -231,6 +235,7 @@ void DirectXCommon::InitializeDevice()
     HRESULT hr;
 #ifdef _DEBUG
     ComPtr<ID3D12Debug1> debugController = nullptr;
+
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
         debugController->EnableDebugLayer();
         debugController->SetEnableGPUBasedValidation(TRUE);
@@ -245,6 +250,7 @@ void DirectXCommon::InitializeDevice()
         DXGI_ADAPTER_DESC3 adapterDesc {};
         hr = useAdapter->GetDesc3(&adapterDesc);
         assert(SUCCEEDED(hr));
+
         if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)) {
             Logger::Log(StringUtility::ConvertString(std::format(L"USE Adapter:{}\n", adapterDesc.Description)));
             break;
@@ -259,6 +265,7 @@ void DirectXCommon::InitializeDevice()
     const char* featureLevelStrings[] = { "12.2", "12.1", "12.0" };
     for (size_t i = 0; i < _countof(featureLevels); ++i) {
         hr = D3D12CreateDevice(useAdapter.Get(), featureLevels[i], IID_PPV_ARGS(&device_));
+        
         if (SUCCEEDED(hr)) {
             Logger::Log((std::format("Feature Level: {}\n", featureLevelStrings[i])));
             break;

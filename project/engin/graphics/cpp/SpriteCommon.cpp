@@ -100,6 +100,7 @@ void SpriteCommon::Initialize(DirectXCommon* dxCommon)
     ComPtr<ID3DBlob> errorBlob = nullptr;
     HRESULT hr = D3D12SerializeRootSignature(&descriptionRootSignature,
         D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+    
     if (FAILED(hr)) {
         assert(false);
     }

@@ -127,6 +127,7 @@ void VideoPlayer::Update()
 
         return;
     }
+
     timeCount_ -= frameDuration_;
 
     if (!pSourceReader_) {
@@ -143,6 +144,7 @@ void VideoPlayer::Update()
     if (SUCCEEDED(hr) && pSample) {
         ComPtr<IMFMediaBuffer> pBuffer;
         hr = pSample->ConvertToContiguousBuffer(&pBuffer);
+        
         if (SUCCEEDED(hr)) {
             BYTE* pData = nullptr;
             DWORD maxLength = 0, currentLength = 0;

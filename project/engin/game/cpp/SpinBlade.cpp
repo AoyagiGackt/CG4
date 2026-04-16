@@ -26,7 +26,7 @@ void SpinBlade::Initialize(Player*) {}
 
 void SpinBlade::Update()
 {
-    if (state_ == State::None || !player_) return;
+    if (state_ == State::None || !player_) { return; }
 
     Vector3 playerPos = player_->GetPosition();
 
@@ -48,7 +48,7 @@ void SpinBlade::Update()
 
 void SpinBlade::UpdateCharge(const Vector3& playerPos)
 {
-    if (chargeTimer_ > 0) chargeTimer_--;
+    if (chargeTimer_ > 0) { chargeTimer_--; }
 
     rotationAngle_ += kChargeRotateSpeed;
 
@@ -70,7 +70,7 @@ void SpinBlade::UpdateCharge(const Vector3& playerPos)
 void SpinBlade::UpdateActive(const Vector3& playerPos)
 {
     EnemyManager* enemyManager = player_->GetEnemyManager();
-    if (!enemyManager) return;
+    if (!enemyManager) { return; }
 
     const auto& enemies = enemyManager->GetEnemies();
 
@@ -81,7 +81,7 @@ void SpinBlade::UpdateActive(const Vector3& playerPos)
 
         for (auto& enemy : enemies)
         {
-            if (!enemy) continue;
+            if (!enemy) { continue; }
 
             if (IsHit(enemy->GetPosition(), playerPos, finishRadius_))
             {
@@ -114,7 +114,7 @@ void SpinBlade::UpdateActive(const Vector3& playerPos)
         {
             for (auto& enemy : enemies)
             {
-                if (!enemy) continue;
+                if (!enemy) { continue; }
 
                 if (IsHit(enemy->GetPosition(), pos, attackRadius_))
                 {
@@ -151,7 +151,7 @@ void SpinBlade::UpdateFinish(const Vector3& playerPos)
 
 void SpinBlade::UpdateBlade(int i, const Vector3& pos)
 {
-    if (!blades_[i]) return;
+    if (!blades_[i]) { return; }
 
     blades_[i]->GetTransform().translate = pos;
     blades_[i]->Update();
@@ -179,7 +179,7 @@ bool SpinBlade::IsHit(const Vector3& a, const Vector3& b, float radius) const
 
 void SpinBlade::Draw()
 {
-    if (state_ == State::None) return;
+    if (state_ == State::None) { return; }
 
     for (auto& blade : blades_)
     {
@@ -192,7 +192,7 @@ void SpinBlade::Draw()
 
 void SpinBlade::Activate()
 {
-    if (!player_ || state_ != State::None) return;
+    if (!player_ || state_ != State::None) { return; }
 
     state_ = State::Charge;
     isActive_ = true;
