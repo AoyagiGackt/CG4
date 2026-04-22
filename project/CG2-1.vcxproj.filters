@@ -389,7 +389,9 @@
     <ClInclude Include="engin\game\h\LoadingScene.h">
       <Filter>ヘッダーファイル\Game\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="engin\game\h\HitStarEmitter.h" />
+    <ClInclude Include="engin\game\h\HitStarEmitter.h">
+      <Filter>ヘッダーファイル\Game\Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\object3d\Object3d.hlsli">
