@@ -101,7 +101,7 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
     EnemyDeathEffect::CreateGroup();
     BulletHitEffect::CreateGroup();
     HitStarEmitter::CreateGroup();
-    hitStarEmitter_ = std::make_unique<HitStarEmitter>(humanPosition_, Vector4{ 1.0f, 0.95f, 0.8f, 1.0f });
+    hitStarEmitter_ = std::make_unique<HitStarEmitter>(hitStarPosition_, hitStarColor_);
 
     ScoreManager::GetInstance()->LoadScores();
     ScoreManager::GetInstance()->ResetCurrentScore();
@@ -200,7 +200,6 @@ void GamePlayScene::Update()
     UpdateDebugUI();
 
     // 星型ヒットエフェクトを常時放出
-    hitStarEmitter_->SetPosition(humanPosition_);
     hitStarEmitter_->Update();
 
     // 楕円パーティクルを一定間隔で放出
@@ -282,6 +281,10 @@ void GamePlayScene::UpdateDebugUI()
     }
     if (ImGui::Selectable("Human", editorSelectedType_ == SelectedType::Human)) {
         editorSelectedType_ = SelectedType::Human;
+        editorSelectedIndex_ = -1;
+    }
+    if (ImGui::Selectable("HitStar Emitter", editorSelectedType_ == SelectedType::HitStar)) {
+        editorSelectedType_ = SelectedType::HitStar;
         editorSelectedIndex_ = -1;
     }
     if (ImGui::Selectable("Enemy Settings", editorSelectedType_ == SelectedType::EnemySettings)) {
@@ -508,6 +511,25 @@ void GamePlayScene::UpdateDebugUI()
         
         if (ImGui::Button("Save##inspEn")) {
             SaveModelPaths();
+        }
+
+        break;
+    }
+
+    case SelectedType::HitStar: {
+        ImGui::TextColored(ImVec4(1.0f, 0.9f, 0.4f, 1), "[HitStar Emitter]");
+        ImGui::Separator();
+
+        if (ImGui::DragFloat3("Position", &hitStarPosition_.x, 0.1f)) {
+            hitStarEmitter_->SetPosition(hitStarPosition_);
+        }
+
+        if (ImGui::ColorEdit4("Color", &hitStarColor_.x)) {
+            hitStarEmitter_->SetColor(hitStarColor_);
+        }
+
+        if (ImGui::SliderFloat("Frequency", &hitStarFreq_, 0.01f, 0.5f)) {
+            hitStarEmitter_->SetFrequency(hitStarFreq_);
         }
 
         break;

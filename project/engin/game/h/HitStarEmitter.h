@@ -39,6 +39,8 @@ public:
     void Update();
 
     void SetPosition(const Vector3& position) { position_ = position; }
+    void SetColor(const Vector4& color)       { color_    = color; }
+    void SetFrequency(float freq)             { frequency_ = freq; }
 
 private:
     Vector3 position_;
