@@ -196,31 +196,34 @@ void ParticleManager::EmitHitStar(const std::string& name, const Vector3& positi
     assert(particleGroups_.contains(name));
     ParticleGroup& group = particleGroups_[name];
 
+    // default_random_engine を static で保持し、起動時に乱数シードを設定する
     static std::default_random_engine engine{ std::random_device{}() };
     std::uniform_real_distribution<float> rotDist(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
-    std::uniform_real_distribution<float> scaleYDist(0.4f, 1.5f);
+    std::uniform_real_distribution<float> scaleYDist(0.15f, 0.7f);   // 線香花火らしい短めの火花
+    std::uniform_real_distribution<float> speedDist(0.5f, 2.5f);     // 速さにばらつき
+    std::uniform_real_distribution<float> lifeDist(0.2f, 0.5f);      // 寿命にばらつき
 
-    const int   kCount    = 8;
-    const float kSpeed    = 4.0f;
-    const float kLifeTime = 0.18f;
+    const int kCount = 8;
 
     for (int i = 0; i < kCount; ++i) {
         if (group.particles.size() >= group.kNumMaxInstance) { break; }
 
-        float angle  = rotDist(engine);
-        float scaleY = scaleYDist(engine);
-        float speed  = kSpeed * (1.0f / 60.0f);
+        // Z回転（視覚的な向き）と速度方向は独立させる ＝ 線香花火の火花がバラバラに散る
+        float rotAngle = rotDist(engine);
+        float velAngle = rotDist(engine);
+        float scaleY   = scaleYDist(engine);
+        float speed    = speedDist(engine) * (1.0f / 60.0f);
+        float lifeTime = lifeDist(engine);
 
-        // 各パーティクルの速度はZ回転方向へ飛ばす（楕円の向きと一致させる）
-        Vector3 vel = { std::cos(angle) * speed, std::sin(angle) * speed, 0.0f };
+        Vector3 vel = { std::cos(velAngle) * speed, std::sin(velAngle) * speed, 0.0f };
 
         Particle p;
-        p.transform.scale     = { 0.05f, scaleY, 1.0f }; // X固定・Y乱数で楕円形
-        p.transform.rotate    = { 0.0f, 0.0f, angle };   // Z軸のみランダム回転
+        p.transform.scale     = { 0.04f, scaleY, 1.0f }; // X固定・Y乱数で楕円形
+        p.transform.rotate    = { 0.0f, 0.0f, rotAngle }; // Z軸ランダム（速度と独立）
         p.transform.translate = position;
         p.velocity            = vel;
         p.color               = color;
-        p.lifeTime            = kLifeTime;
+        p.lifeTime            = lifeTime;
         p.currentTime         = 0.0f;
 
         group.particles.push_back(p);

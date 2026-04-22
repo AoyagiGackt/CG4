@@ -37,6 +37,7 @@
 #include "PlayerManager.h"
 #include "Skydome.h"
 #include "hoge.h"
+#include "HitStarEmitter.h"
 
 /**
  * @brief ゲームプレイ本編のシーンクラス
@@ -114,6 +115,9 @@ private:
 	// --- 楕円パーティクル ---
 	float ellipseParticleTimer_ = 0.0f; ///< 放出タイマー（秒）
 	static constexpr float kEllipseEmitInterval = 0.05f; ///< 放出間隔（秒）
+
+	// --- 星型ヒットエフェクト（常時発生） ---
+	std::unique_ptr<HitStarEmitter> hitStarEmitter_;
 
 	// --- デバッグ・エディタ関連 ---
 	bool debugScrollPaused_ = false;

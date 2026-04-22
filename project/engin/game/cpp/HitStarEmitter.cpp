@@ -5,7 +5,7 @@ const std::string HitStarEmitter::kGroupName = "hitStar";
 
 void HitStarEmitter::CreateGroup()
 {
-    ParticleManager::GetInstance()->CreateParticleGroup(kGroupName, "Resources/hitStarEffect.png");
+    ParticleManager::GetInstance()->CreateParticleGroup(kGroupName, "Resources/white.png");
 }
 
 HitStarEmitter::HitStarEmitter(const Vector3& position, const Vector4& color)

@@ -100,6 +100,8 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
 
     EnemyDeathEffect::CreateGroup();
     BulletHitEffect::CreateGroup();
+    HitStarEmitter::CreateGroup();
+    hitStarEmitter_ = std::make_unique<HitStarEmitter>(humanPosition_, Vector4{ 1.0f, 0.95f, 0.8f, 1.0f });
 
     ScoreManager::GetInstance()->LoadScores();
     ScoreManager::GetInstance()->ResetCurrentScore();
@@ -197,16 +199,9 @@ void GamePlayScene::Update()
     // UIと描画関連の更新
     UpdateDebugUI();
 
-    // Z キー で斬撃エフェクトを放出
-    if (input_->TriggerKey(DIK_Z)) {
-        ParticleManager::GetInstance()->EmitSlash(
-            "slash",
-            { 12.0f, 3.0f, 0.0f },          // カメラから見えるあたりに仮置き
-            -0.4f,
-            { 0.9f, 0.95f, 1.0f, 1.0f },
-            1.5f
-        );
-    }
+    // 星型ヒットエフェクトを常時放出
+    hitStarEmitter_->SetPosition(humanPosition_);
+    hitStarEmitter_->Update();
 
     // 楕円パーティクルを一定間隔で放出
     ellipseParticleTimer_ += 1.0f / 60.0f;
