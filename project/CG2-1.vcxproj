@@ -159,6 +159,7 @@
     <ClCompile Include="engin\game\cpp\Animation.cpp" />
     <ClCompile Include="engin\game\cpp\Audio.cpp" />
     <ClCompile Include="engin\game\cpp\bulletHitEffect.cpp" />
+    <ClCompile Include="engin\game\cpp\HitStarEmitter.cpp" />
     <ClCompile Include="engin\game\cpp\ClearScene.cpp" />
     <ClCompile Include="engin\game\cpp\ConditionUpEffect.cpp" />
     <ClCompile Include="engin\game\cpp\GameOverScene.cpp" />
@@ -263,6 +264,7 @@
     <ClInclude Include="engin\game\h\Audio.h" />
     <ClInclude Include="engin\game\h\BaseScene.h" />
     <ClInclude Include="engin\game\h\bulletHitEffect.h" />
+    <ClInclude Include="engin\game\h\HitStarEmitter.h" />
     <ClInclude Include="engin\game\h\ClearScene.h" />
     <ClInclude Include="engin\game\h\ConditionUpEffect.h" />
     <ClInclude Include="engin\game\h\GameOverScene.h" />

@@ -1,5 +1,6 @@
 #include "GamePlayScene.h"
 #include <algorithm>
+#include <cmath>
 #include <commdlg.h>
 #include <fstream>
 #include <sstream>
@@ -90,8 +91,17 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
 
     // ----- エフェクト・進行管理 -----
     ParticleManager::GetInstance()->SetModel(modelBullet_.get());
+
+    // 楕円パーティクルグループ（circle2.png を使用）
+    ParticleManager::GetInstance()->CreateParticleGroup("ellipse", "Resources/circle2.png");
+
+    // 斬撃パーティクルグループ（gradationLine.png を使用）
+    ParticleManager::GetInstance()->CreateParticleGroup("slash", "Resources/gradationLine.png");
+
     EnemyDeathEffect::CreateGroup();
     BulletHitEffect::CreateGroup();
+    HitStarEmitter::CreateGroup();
+    hitStarEmitter_ = std::make_unique<HitStarEmitter>(hitStarPosition_, hitStarColor_);
 
     ScoreManager::GetInstance()->LoadScores();
     ScoreManager::GetInstance()->ResetCurrentScore();
@@ -189,6 +199,30 @@ void GamePlayScene::Update()
     // UIと描画関連の更新
     UpdateDebugUI();
 
+    // 星型ヒットエフェクトを常時放出
+    hitStarEmitter_->Update();
+
+    // 楕円パーティクルを一定間隔で放出
+    ellipseParticleTimer_ += 1.0f / 60.0f;
+    while (ellipseParticleTimer_ >= kEllipseEmitInterval) {
+        ellipseParticleTimer_ -= kEllipseEmitInterval;
+
+        // ランダムな方向へ放出（human 周辺）
+        float angle = static_cast<float>(rand() % 360) * (3.14159265f / 180.0f);
+        float speed = 0.02f + static_cast<float>(rand() % 30) / 1000.0f;
+        Vector3 vel = { std::cos(angle) * speed, 0.05f + static_cast<float>(rand() % 20) / 1000.0f, std::sin(angle) * speed };
+
+        ParticleManager::GetInstance()->EmitEllipse(
+            "ellipse",
+            humanPosition_,                              // human の位置から放出
+            vel,
+            { 0.6f, 0.85f, 1.0f, 1.0f },                // 薄い水色
+            1.5f,                                        // 寿命
+            0.4f,                                        // scaleX（横長）
+            0.2f                                         // scaleY（縦細）
+        );
+    }
+
     ParticleManager::GetInstance()->Update(camera_.get());
 }
 
@@ -247,6 +281,10 @@ void GamePlayScene::UpdateDebugUI()
     }
     if (ImGui::Selectable("Human", editorSelectedType_ == SelectedType::Human)) {
         editorSelectedType_ = SelectedType::Human;
+        editorSelectedIndex_ = -1;
+    }
+    if (ImGui::Selectable("HitStar Emitter", editorSelectedType_ == SelectedType::HitStar)) {
+        editorSelectedType_ = SelectedType::HitStar;
         editorSelectedIndex_ = -1;
     }
     if (ImGui::Selectable("Enemy Settings", editorSelectedType_ == SelectedType::EnemySettings)) {
@@ -473,6 +511,25 @@ void GamePlayScene::UpdateDebugUI()
         
         if (ImGui::Button("Save##inspEn")) {
             SaveModelPaths();
+        }
+
+        break;
+    }
+
+    case SelectedType::HitStar: {
+        ImGui::TextColored(ImVec4(1.0f, 0.9f, 0.4f, 1), "[HitStar Emitter]");
+        ImGui::Separator();
+
+        if (ImGui::DragFloat3("Position", &hitStarPosition_.x, 0.1f)) {
+            hitStarEmitter_->SetPosition(hitStarPosition_);
+        }
+
+        if (ImGui::ColorEdit4("Color", &hitStarColor_.x)) {
+            hitStarEmitter_->SetColor(hitStarColor_);
+        }
+
+        if (ImGui::SliderFloat("Frequency", &hitStarFreq_, 0.01f, 0.5f)) {
+            hitStarEmitter_->SetFrequency(hitStarFreq_);
         }
 
         break;

@@ -37,6 +37,7 @@
 #include "PlayerManager.h"
 #include "Skydome.h"
 #include "hoge.h"
+#include "HitStarEmitter.h"
 
 /**
  * @brief ゲームプレイ本編のシーンクラス
@@ -111,6 +112,16 @@ private:
 	// --- 進行・状態管理 ---
 	GameTime gameTime_;
 
+	// --- 楕円パーティクル ---
+	float ellipseParticleTimer_ = 0.0f; ///< 放出タイマー（秒）
+	static constexpr float kEllipseEmitInterval = 0.05f; ///< 放出間隔（秒）
+
+	// --- 星型ヒットエフェクト（常時発生） ---
+	std::unique_ptr<HitStarEmitter> hitStarEmitter_;
+	Vector3 hitStarPosition_ = { 12.0f, 2.0f, 0.0f };
+	Vector4 hitStarColor_    = { 1.0f, 0.95f, 0.8f, 1.0f };
+	float   hitStarFreq_     = 0.05f;
+
 	// --- デバッグ・エディタ関連 ---
 	bool debugScrollPaused_ = false;
 	bool debugSpawnDisabled_ = false;
@@ -128,7 +139,7 @@ private:
 	std::string enemyObjPath_ = "Resources/boss/boss.obj";
 	std::string enemyTexPath_ = "Resources/boss/boss.png";
 
-	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,Human };
+	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,Human,HitStar };
 	SelectedType editorSelectedType_ = SelectedType::None;
 	int editorSelectedIndex_ = -1;
 

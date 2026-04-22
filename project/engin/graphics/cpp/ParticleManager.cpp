@@ -2,6 +2,9 @@
 #include "TextureManager.h"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <numbers>
+#include <random>
 #include <d3dx12.h>
 
 using namespace Microsoft::WRL;
@@ -123,6 +126,108 @@ void ParticleManager::EmitWithColor(const std::string& name, const Vector3& posi
     newParticle.currentTime = 0.0f;
 
     particleGroups_[name].particles.push_back(newParticle);
+}
+
+void ParticleManager::EmitEllipse(const std::string& name, const Vector3& position,
+    const Vector3& velocity, const Vector4& color,
+    float lifeTime, float scaleX, float scaleY)
+{
+    assert(particleGroups_.contains(name));
+
+    ParticleGroup& group = particleGroups_[name];
+    if (group.particles.size() >= group.kNumMaxInstance) {
+        return;
+    }
+
+    Particle newParticle;
+    newParticle.transform.scale     = { scaleX, scaleY, 1.0f }; // 非均一スケールで楕円形に
+    newParticle.transform.rotate    = { 0.0f, 0.0f, 0.0f };
+    newParticle.transform.translate = position;
+    newParticle.velocity            = velocity;
+    newParticle.color               = color;
+    newParticle.lifeTime            = lifeTime;
+    newParticle.currentTime         = 0.0f;
+
+    group.particles.push_back(newParticle);
+}
+
+void ParticleManager::EmitSlash(const std::string& name, const Vector3& position,
+    float angle, const Vector4& color, float radius)
+{
+    // ヒットエフェクト：中心から斬撃線が放射状に飛び散る
+    // angle を基準に ±60° の範囲に集中させて「斬られた方向感」を出す
+    const int   kCount    = 6;
+    const float kSpread   = 2.0f;   // 広がり角度（ラジアン全幅）
+    const float kSpeed    = 6.0f;   // 飛散速度（単位/秒）
+    const float kLifeTime = 0.15f;  // 非常に短命でパンチを出す
+
+    for (int i = 0; i < kCount; ++i) {
+        ParticleGroup& group = particleGroups_[name];
+        if (group.particles.size() >= group.kNumMaxInstance) { break; }
+
+        float t = static_cast<float>(i) / static_cast<float>(kCount - 1); // 0 → 1
+
+        // angle を中心に kSpread の範囲で均等に散らす
+        float a = angle - kSpread * 0.5f + kSpread * t;
+
+        // 速度：各ラインの向きへ勢いよく飛ばす
+        float speed = kSpeed * (0.7f + 0.3f * t) * (1.0f / 60.0f);
+        Vector3 vel = { std::cos(a) * speed, std::sin(a) * speed, 0.0f };
+
+        // 内側ほど明るい（中心が白く光るイメージ）
+        float bright = 1.0f - t * 0.3f;
+        Vector4 c = { color.x, color.y, color.z, color.w * bright };
+
+        Particle p;
+        p.transform.scale     = { radius * 0.5f, radius * 0.05f, 1.0f }; // 細い線
+        p.transform.rotate    = { 0.0f, 0.0f, a };                        // 飛散方向に向ける
+        p.transform.translate = position;                                  // 全部同じ中心から出る
+        p.velocity            = vel;
+        p.color               = c;
+        p.lifeTime            = kLifeTime;
+        p.currentTime         = 0.0f;
+
+        group.particles.push_back(p);
+    }
+}
+
+void ParticleManager::EmitHitStar(const std::string& name, const Vector3& position, const Vector4& color)
+{
+    assert(particleGroups_.contains(name));
+    ParticleGroup& group = particleGroups_[name];
+
+    // default_random_engine を static で保持し、起動時に乱数シードを設定する
+    static std::default_random_engine engine{ std::random_device{}() };
+    std::uniform_real_distribution<float> rotDist(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
+    std::uniform_real_distribution<float> scaleYDist(0.15f, 0.7f);   // 線香花火らしい短めの火花
+    std::uniform_real_distribution<float> speedDist(0.5f, 2.5f);     // 速さにばらつき
+    std::uniform_real_distribution<float> lifeDist(0.2f, 0.5f);      // 寿命にばらつき
+
+    const int kCount = 8;
+
+    for (int i = 0; i < kCount; ++i) {
+        if (group.particles.size() >= group.kNumMaxInstance) { break; }
+
+        // Z回転（視覚的な向き）と速度方向は独立させる ＝ 線香花火の火花がバラバラに散る
+        float rotAngle = rotDist(engine);
+        float velAngle = rotDist(engine);
+        float scaleY   = scaleYDist(engine);
+        float speed    = speedDist(engine) * (1.0f / 60.0f);
+        float lifeTime = lifeDist(engine);
+
+        Vector3 vel = { std::cos(velAngle) * speed, std::sin(velAngle) * speed, 0.0f };
+
+        Particle p;
+        p.transform.scale     = { 0.04f, scaleY, 1.0f }; // X固定・Y乱数で楕円形
+        p.transform.rotate    = { 0.0f, 0.0f, rotAngle }; // Z軸ランダム（速度と独立）
+        p.transform.translate = position;
+        p.velocity            = vel;
+        p.color               = color;
+        p.lifeTime            = lifeTime;
+        p.currentTime         = 0.0f;
+
+        group.particles.push_back(p);
+    }
 }
 
 void ParticleManager::CreateRootSignature()
