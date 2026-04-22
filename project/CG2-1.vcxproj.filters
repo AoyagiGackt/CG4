@@ -192,6 +192,9 @@
     <ClCompile Include="engin\game\cpp\LoadingScene.cpp">
       <Filter>ソースファイル\Game\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="engin\game\cpp\HitStarEmitter.cpp">
+      <Filter>ソースファイル\Game\Particle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engin\graphics\h\D3DResourceLeakChecker.h">
@@ -386,6 +389,7 @@
     <ClInclude Include="engin\game\h\LoadingScene.h">
       <Filter>ヘッダーファイル\Game\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="engin\game\h\HitStarEmitter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\shaders\object3d\Object3d.hlsli">

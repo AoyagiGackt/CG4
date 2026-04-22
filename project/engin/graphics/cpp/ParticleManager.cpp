@@ -2,6 +2,9 @@
 #include "TextureManager.h"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <numbers>
+#include <random>
 #include <d3dx12.h>
 
 using namespace Microsoft::WRL;
@@ -181,6 +184,42 @@ void ParticleManager::EmitSlash(const std::string& name, const Vector3& position
         p.transform.translate = position;                                  // 全部同じ中心から出る
         p.velocity            = vel;
         p.color               = c;
+        p.lifeTime            = kLifeTime;
+        p.currentTime         = 0.0f;
+
+        group.particles.push_back(p);
+    }
+}
+
+void ParticleManager::EmitHitStar(const std::string& name, const Vector3& position, const Vector4& color)
+{
+    assert(particleGroups_.contains(name));
+    ParticleGroup& group = particleGroups_[name];
+
+    static std::default_random_engine engine{ std::random_device{}() };
+    std::uniform_real_distribution<float> rotDist(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
+    std::uniform_real_distribution<float> scaleYDist(0.4f, 1.5f);
+
+    const int   kCount    = 8;
+    const float kSpeed    = 4.0f;
+    const float kLifeTime = 0.18f;
+
+    for (int i = 0; i < kCount; ++i) {
+        if (group.particles.size() >= group.kNumMaxInstance) { break; }
+
+        float angle  = rotDist(engine);
+        float scaleY = scaleYDist(engine);
+        float speed  = kSpeed * (1.0f / 60.0f);
+
+        // 各パーティクルの速度はZ回転方向へ飛ばす（楕円の向きと一致させる）
+        Vector3 vel = { std::cos(angle) * speed, std::sin(angle) * speed, 0.0f };
+
+        Particle p;
+        p.transform.scale     = { 0.05f, scaleY, 1.0f }; // X固定・Y乱数で楕円形
+        p.transform.rotate    = { 0.0f, 0.0f, angle };   // Z軸のみランダム回転
+        p.transform.translate = position;
+        p.velocity            = vel;
+        p.color               = color;
         p.lifeTime            = kLifeTime;
         p.currentTime         = 0.0f;
 

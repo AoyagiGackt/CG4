@@ -121,6 +121,16 @@ public:
 		float angle, const Vector4& color, float radius = 1.0f);
 
 	/**
+	 * @brief 星型ヒットエフェクトを1バースト放出する（8本の楕円パーティクルをランダム角度で散らす）
+	 * @param name     パーティクルグループ名
+	 * @param position ヒット座標
+	 * @param color    エフェクトの色
+	 * @note scaleX=0.05f固定、scaleY=0.4〜1.5乱数、rotateZ=-π〜π乱数
+	 *       HitStarEmitter から3回呼び出して3バーストを実現する
+	 */
+	void EmitHitStar(const std::string& name, const Vector3& position, const Vector4& color);
+
+	/**
 	 * @brief 既存のパーティクルグループのテクスチャを変更する
 	 * @param groupName 変更したいパーティクルグループの名前
 	 * @param textureFilePath 新しく適用するテクスチャのパス
