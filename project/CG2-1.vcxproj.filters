@@ -16,6 +16,12 @@
     <FxCompile Include="Resources\shaders\object3d\ShadowVS.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+    <FxCompile Include="Resources\shaders\ring\Ring.PS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Resources\shaders\ring\Ring.VS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engin\base\main.cpp">
@@ -193,6 +199,9 @@
       <Filter>ソースファイル\Game\Scene</Filter>
     </ClCompile>
     <ClCompile Include="engin\game\cpp\HitStarEmitter.cpp">
+      <Filter>ソースファイル\Game\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="engin\graphics\cpp\Ring.cpp">
       <Filter>ソースファイル\Game\Particle</Filter>
     </ClCompile>
   </ItemGroup>
@@ -390,6 +399,9 @@
       <Filter>ヘッダーファイル\Game\Scene</Filter>
     </ClInclude>
     <ClInclude Include="engin\game\h\HitStarEmitter.h">
+      <Filter>ヘッダーファイル\Game\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="engin\graphics\h\Ring.h">
       <Filter>ヘッダーファイル\Game\Particle</Filter>
     </ClInclude>
   </ItemGroup>

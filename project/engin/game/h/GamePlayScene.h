@@ -38,6 +38,7 @@
 #include "Skydome.h"
 #include "hoge.h"
 #include "HitStarEmitter.h"
+#include "Ring.h"
 
 /**
  * @brief ゲームプレイ本編のシーンクラス
@@ -122,6 +123,15 @@ private:
 	Vector4 hitStarColor_    = { 1.0f, 0.95f, 0.8f, 1.0f };
 	float   hitStarFreq_     = 0.05f;
 
+	// --- Ring ---
+	std::unique_ptr<Ring> ring_;
+	Vector3 ringPosition_    = { 14.5f, 0.0f, 0.0f };
+	Vector3 ringRotation_    = {};
+	Vector4 ringColor_       = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float   ringScale_       = 1.0f;
+	float   ringInnerRadius_ = 1.5f;
+	float   ringOuterRadius_ = 2.5f;
+
 	// --- デバッグ・エディタ関連 ---
 	bool debugScrollPaused_ = false;
 	bool debugSpawnDisabled_ = false;
@@ -139,7 +149,7 @@ private:
 	std::string enemyObjPath_ = "Resources/boss/boss.obj";
 	std::string enemyTexPath_ = "Resources/boss/boss.png";
 
-	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,Human,HitStar };
+	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,Human,HitStar,Ring };
 	SelectedType editorSelectedType_ = SelectedType::None;
 	int editorSelectedIndex_ = -1;
 

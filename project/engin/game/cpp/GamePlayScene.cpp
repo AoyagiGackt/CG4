@@ -103,6 +103,13 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
     HitStarEmitter::CreateGroup();
     hitStarEmitter_ = std::make_unique<HitStarEmitter>(hitStarPosition_, hitStarColor_);
 
+    // Ring（gradationLine.png、AddressV=CLAMP）
+    ring_ = std::make_unique<Ring>();
+    ring_->Initialize(dxCommon_);
+    ring_->SetPosition(ringPosition_);
+    ring_->SetInnerRadius(ringInnerRadius_);
+    ring_->SetOuterRadius(ringOuterRadius_);
+
     ScoreManager::GetInstance()->LoadScores();
     ScoreManager::GetInstance()->ResetCurrentScore();
     gameTime_.Initialize();
@@ -223,6 +230,7 @@ void GamePlayScene::Update()
         );
     }
 
+    ring_->Update(camera_.get());
     ParticleManager::GetInstance()->Update(camera_.get());
 }
 
@@ -285,6 +293,10 @@ void GamePlayScene::UpdateDebugUI()
     }
     if (ImGui::Selectable("HitStar Emitter", editorSelectedType_ == SelectedType::HitStar)) {
         editorSelectedType_ = SelectedType::HitStar;
+        editorSelectedIndex_ = -1;
+    }
+    if (ImGui::Selectable("Ring", editorSelectedType_ == SelectedType::Ring)) {
+        editorSelectedType_ = SelectedType::Ring;
         editorSelectedIndex_ = -1;
     }
     if (ImGui::Selectable("Enemy Settings", editorSelectedType_ == SelectedType::EnemySettings)) {
@@ -530,6 +542,41 @@ void GamePlayScene::UpdateDebugUI()
 
         if (ImGui::SliderFloat("Frequency", &hitStarFreq_, 0.01f, 0.5f)) {
             hitStarEmitter_->SetFrequency(hitStarFreq_);
+        }
+
+        break;
+    }
+
+    case SelectedType::Ring: {
+        ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.8f, 1), "[Ring]");
+        ImGui::Separator();
+
+        if (ImGui::DragFloat3("Position", &ringPosition_.x, 0.1f)) {
+            ring_->SetPosition(ringPosition_);
+        }
+
+        if (ImGui::DragFloat3("Rotation", &ringRotation_.x, 0.01f)) {
+            ring_->SetRotation(ringRotation_);
+        }
+
+        if (ImGui::DragFloat("Scale", &ringScale_, 0.01f, 0.01f, 20.0f)) {
+            ring_->SetScale(ringScale_);
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::DragFloat("Inner Radius", &ringInnerRadius_, 0.05f, 0.01f, ringOuterRadius_ - 0.01f)) {
+            ring_->SetInnerRadius(ringInnerRadius_);
+        }
+
+        if (ImGui::DragFloat("Outer Radius", &ringOuterRadius_, 0.05f, ringInnerRadius_ + 0.01f, 50.0f)) {
+            ring_->SetOuterRadius(ringOuterRadius_);
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::ColorEdit4("Color", &ringColor_.x)) {
+            ring_->SetColor(ringColor_);
         }
 
         break;
@@ -1169,6 +1216,7 @@ void GamePlayScene::Draw()
 
     enemyManager_->DrawBullets();
     ParticleManager::GetInstance()->Draw(camera_.get());
+    ring_->Draw();
 
     // 2D UI（ImGuiで追加したスプライト要素）
     spriteCommon_->CommonDrawSettings();
