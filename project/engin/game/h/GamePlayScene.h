@@ -97,10 +97,6 @@ private:
 	std::unique_ptr<Model> modelBullet_;
 	std::unique_ptr<Model> modelBeam_;
 	std::unique_ptr<Model> modelSkydome_;
-	std::unique_ptr<Model> modelHuman_;
-
-	// --- human オブジェクト ---
-	std::unique_ptr<Object3d> objectHuman_;
 
 	// --- 天球 ---
 	std::unique_ptr<Skydome> skydome_;
@@ -113,9 +109,10 @@ private:
 	// --- 進行・状態管理 ---
 	GameTime gameTime_;
 
-	// --- 楕円パーティクル ---
-	float ellipseParticleTimer_ = 0.0f; ///< 放出タイマー（秒）
-	static constexpr float kEllipseEmitInterval = 0.05f; ///< 放出間隔（秒）
+	// --- 楕円パーティクル（Ring 周回） ---
+	float ellipseParticleTimer_ = 0.0f;
+	static constexpr float kEllipseEmitInterval = 0.05f;
+	float ringOrbitAngle_ = 0.0f; ///< パーティクル放出角度（リングを周回）
 
 	// --- 星型ヒットエフェクト（常時発生） ---
 	std::unique_ptr<HitStarEmitter> hitStarEmitter_;
@@ -137,19 +134,12 @@ private:
 	bool debugSpawnDisabled_ = false;
 	bool debugEditMode_ = false;
 
-	// --- Human パラメータ ---
-	Vector3 humanPosition_        = { 14.5f, 0.0f, 0.0f };
-	Vector4 humanColor_           = { 0.9f, 0.9f, 0.9f, 1.0f }; // シルバー
-	float   humanEnvMapIntensity_ = 1.0f;
-	float   humanShininess_       = 128.0f;
-	bool    humanUseTexture_      = true;
-
 	std::string playerObjPath_ = "Resources/player/player.obj";
 	std::string playerTexPath_ = "Resources/player/player.png";
 	std::string enemyObjPath_ = "Resources/boss/boss.obj";
 	std::string enemyTexPath_ = "Resources/boss/boss.png";
 
-	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,Human,HitStar,Ring };
+	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,HitStar,Ring };
 	SelectedType editorSelectedType_ = SelectedType::None;
 	int editorSelectedIndex_ = -1;
 
