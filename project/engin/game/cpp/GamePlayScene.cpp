@@ -62,20 +62,6 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
     skydome_ = std::make_unique<Skydome>();
     skydome_->Initialize(modelCommon_.get(), modelSkydome_.get());
 
-    // ----- human モデル -----
-    modelHuman_ = std::make_unique<Model>();
-    modelHuman_->Initialize(modelCommon_.get(), "Resources/human/walk.gltf", "Resources/human/white.png");
-    modelHuman_->SetEnvCubemap("Resources/rostock_laage_airport_4k.dds"); // スカイドームと同じキューブマップを環境マップに使用
-
-    objectHuman_ = std::make_unique<Object3d>();
-    objectHuman_->Initialize(modelCommon_.get());
-    objectHuman_->SetModel(modelHuman_.get());
-    objectHuman_->SetPosition(humanPosition_);
-    objectHuman_->SetColor(humanColor_);
-    objectHuman_->SetUseTexture(humanUseTexture_);
-    objectHuman_->SetEnvMapIntensity(humanEnvMapIntensity_);
-    objectHuman_->SetShininess(humanShininess_);
-
     playerManager_ = std::make_unique<PlayerManager>();
     playerManager_->Initialize(modelCommon_.get(), modelPlayer_.get(), input_, mapField_.get(), camera_.get());
 
@@ -102,6 +88,13 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
     BulletHitEffect::CreateGroup();
     HitStarEmitter::CreateGroup();
     hitStarEmitter_ = std::make_unique<HitStarEmitter>(hitStarPosition_, hitStarColor_);
+
+    // Ring（gradationLine.png、AddressV=CLAMP）
+    ring_ = std::make_unique<Ring>();
+    ring_->Initialize(dxCommon_);
+    ring_->SetPosition(ringPosition_);
+    ring_->SetInnerRadius(ringInnerRadius_);
+    ring_->SetOuterRadius(ringOuterRadius_);
 
     ScoreManager::GetInstance()->LoadScores();
     ScoreManager::GetInstance()->ResetCurrentScore();
@@ -131,9 +124,6 @@ void GamePlayScene::Update()
 
     // 天球の更新
     skydome_->Update(camera_.get(), timeRatio);
-
-    // human の更新
-    objectHuman_->Update();
 
     // シャドウの更新
     shadowManager_->Update(objectCommon_->GetLightDirection());
@@ -202,27 +192,41 @@ void GamePlayScene::Update()
     // 星型ヒットエフェクトを常時放出
     hitStarEmitter_->Update();
 
-    // 楕円パーティクルを一定間隔で放出
+    // 楕円パーティクルをリング周回軌道で放出
+    static constexpr float kOrbitSpeed = 3.14159265f * 2.0f / 3.0f; // 1周/3秒
+    ringOrbitAngle_ += kOrbitSpeed / 60.0f;
+    if (ringOrbitAngle_ > 3.14159265f * 2.0f) ringOrbitAngle_ -= 3.14159265f * 2.0f;
+
     ellipseParticleTimer_ += 1.0f / 60.0f;
     while (ellipseParticleTimer_ >= kEllipseEmitInterval) {
         ellipseParticleTimer_ -= kEllipseEmitInterval;
 
-        // ランダムな方向へ放出（human 周辺）
-        float angle = static_cast<float>(rand() % 360) * (3.14159265f / 180.0f);
-        float speed = 0.02f + static_cast<float>(rand() % 30) / 1000.0f;
-        Vector3 vel = { std::cos(angle) * speed, 0.05f + static_cast<float>(rand() % 20) / 1000.0f, std::sin(angle) * speed };
+        float r = (ringInnerRadius_ + ringOuterRadius_) * 0.5f; // リングの中間半径
+        Vector3 emitPos = {
+            ringPosition_.x + std::cos(ringOrbitAngle_) * r,
+            ringPosition_.y,
+            ringPosition_.z + std::sin(ringOrbitAngle_) * r
+        };
+        // 接線方向 + わずかな上昇
+        float tangentSpeed = 0.03f;
+        Vector3 vel = {
+            -std::sin(ringOrbitAngle_) * tangentSpeed,
+            0.04f,
+            std::cos(ringOrbitAngle_) * tangentSpeed
+        };
 
         ParticleManager::GetInstance()->EmitEllipse(
             "ellipse",
-            humanPosition_,                              // human の位置から放出
+            emitPos,
             vel,
-            { 0.6f, 0.85f, 1.0f, 1.0f },                // 薄い水色
-            1.5f,                                        // 寿命
-            0.4f,                                        // scaleX（横長）
-            0.2f                                         // scaleY（縦細）
+            { 0.6f, 0.85f, 1.0f, 1.0f },
+            1.5f,
+            0.4f,
+            0.2f
         );
     }
 
+    ring_->Update(camera_.get());
     ParticleManager::GetInstance()->Update(camera_.get());
 }
 
@@ -279,12 +283,12 @@ void GamePlayScene::UpdateDebugUI()
         editorSelectedType_ = SelectedType::Player;
         editorSelectedIndex_ = -1;
     }
-    if (ImGui::Selectable("Human", editorSelectedType_ == SelectedType::Human)) {
-        editorSelectedType_ = SelectedType::Human;
-        editorSelectedIndex_ = -1;
-    }
     if (ImGui::Selectable("HitStar Emitter", editorSelectedType_ == SelectedType::HitStar)) {
         editorSelectedType_ = SelectedType::HitStar;
+        editorSelectedIndex_ = -1;
+    }
+    if (ImGui::Selectable("Ring", editorSelectedType_ == SelectedType::Ring)) {
+        editorSelectedType_ = SelectedType::Ring;
         editorSelectedIndex_ = -1;
     }
     if (ImGui::Selectable("Enemy Settings", editorSelectedType_ == SelectedType::EnemySettings)) {
@@ -535,31 +539,36 @@ void GamePlayScene::UpdateDebugUI()
         break;
     }
 
-    case SelectedType::Human: {
-        ImGui::TextColored(ImVec4(0.5f, 0.8f, 1.0f, 1), "[Human]");
+    case SelectedType::Ring: {
+        ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.8f, 1), "[Ring]");
         ImGui::Separator();
 
-        if (ImGui::DragFloat3("Position", &humanPosition_.x, 0.1f)) {
-            objectHuman_->SetPosition(humanPosition_);
+        if (ImGui::DragFloat3("Position", &ringPosition_.x, 0.1f)) {
+            ring_->SetPosition(ringPosition_);
+        }
+
+        if (ImGui::DragFloat3("Rotation", &ringRotation_.x, 0.01f)) {
+            ring_->SetRotation(ringRotation_);
+        }
+
+        if (ImGui::DragFloat("Scale", &ringScale_, 0.01f, 0.01f, 20.0f)) {
+            ring_->SetScale(ringScale_);
         }
 
         ImGui::Separator();
-        ImGui::TextDisabled("Material");
 
-        if (ImGui::ColorEdit3("Metal Color", &humanColor_.x)) {
-            objectHuman_->SetColor(humanColor_);
+        if (ImGui::DragFloat("Inner Radius", &ringInnerRadius_, 0.05f, 0.01f, ringOuterRadius_ - 0.01f)) {
+            ring_->SetInnerRadius(ringInnerRadius_);
         }
 
-        if (ImGui::SliderFloat("Env Map", &humanEnvMapIntensity_, 0.0f, 1.0f)) {
-            objectHuman_->SetEnvMapIntensity(humanEnvMapIntensity_);
+        if (ImGui::DragFloat("Outer Radius", &ringOuterRadius_, 0.05f, ringInnerRadius_ + 0.01f, 50.0f)) {
+            ring_->SetOuterRadius(ringOuterRadius_);
         }
 
-        if (ImGui::SliderFloat("Shininess", &humanShininess_, 1.0f, 512.0f)) {
-            objectHuman_->SetShininess(humanShininess_);
-        }
+        ImGui::Separator();
 
-        if (ImGui::Checkbox("Use Texture", &humanUseTexture_)) {
-            objectHuman_->SetUseTexture(humanUseTexture_);
+        if (ImGui::ColorEdit4("Color", &ringColor_.x)) {
+            ring_->SetColor(ringColor_);
         }
 
         break;
@@ -1160,7 +1169,6 @@ void GamePlayScene::Draw()
     // 天球（最初に描画して他のオブジェクトの背景とする）
     skydome_->Draw();
 
-    objectHuman_->Draw();
     enemyManager_->Draw();
 
     for (const auto& bullet : bullets_) {
@@ -1169,6 +1177,7 @@ void GamePlayScene::Draw()
 
     enemyManager_->DrawBullets();
     ParticleManager::GetInstance()->Draw(camera_.get());
+    ring_->Draw();
 
     // 2D UI（ImGuiで追加したスプライト要素）
     spriteCommon_->CommonDrawSettings();
