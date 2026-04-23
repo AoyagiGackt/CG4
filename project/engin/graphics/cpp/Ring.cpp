@@ -35,30 +35,30 @@ void Ring::RebuildVertices()
 {
     if (!vertexData_) { return; }
 
-    const float kPi = std::numbers::pi_v<float>;
-    int idx = 0;
+    const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / float(kDivisions);
+    const Vector3 normal = { 0.0f, 0.0f, -1.0f }; // XY平面、+Z向き
 
-    for (int i = 0; i < kDivisions; ++i) {
-        float theta0 = 2.0f * kPi * static_cast<float>(i)     / kDivisions;
-        float theta1 = 2.0f * kPi * static_cast<float>(i + 1) / kDivisions;
-        float u0 = static_cast<float>(i)     / kDivisions;
-        float u1 = static_cast<float>(i + 1) / kDivisions;
+    for (int index = 0; index < kDivisions; ++index) {
+        float s     = std::sin(float(index)     * radianPerDivide);
+        float c     = std::cos(float(index)     * radianPerDivide);
+        float sNext = std::sin(float(index + 1) * radianPerDivide);
+        float cNext = std::cos(float(index + 1) * radianPerDivide);
+        float u     = float(index)     / float(kDivisions);
+        float uNext = float(index + 1) / float(kDivisions);
 
-        Vector4 inner0 = { std::cos(theta0) * innerRadius_, 0.0f, std::sin(theta0) * innerRadius_, 1.0f };
-        Vector4 outer0 = { std::cos(theta0) * outerRadius_, 0.0f, std::sin(theta0) * outerRadius_, 1.0f };
-        Vector4 inner1 = { std::cos(theta1) * innerRadius_, 0.0f, std::sin(theta1) * innerRadius_, 1.0f };
-        Vector4 outer1 = { std::cos(theta1) * outerRadius_, 0.0f, std::sin(theta1) * outerRadius_, 1.0f };
+        // XY平面上（Z=0）、-sinでX方向を時計回りに
+        Vector4 outerCur  = { -s     * outerRadius_, c     * outerRadius_, 0.0f, 1.0f };
+        Vector4 outerNext = { -sNext * outerRadius_, cNext * outerRadius_, 0.0f, 1.0f };
+        Vector4 innerCur  = { -s     * innerRadius_, c     * innerRadius_, 0.0f, 1.0f };
+        Vector4 innerNext = { -sNext * innerRadius_, cNext * innerRadius_, 0.0f, 1.0f };
 
-        // 時計回り（D3D12 上面フロントフェイス）
-        // Triangle 1: inner0, outer1, outer0
-        vertexData_[idx++] = { inner0, { u0, 0.0f }, { 0.0f, 1.0f, 0.0f } };
-        vertexData_[idx++] = { outer1, { u1, 1.0f }, { 0.0f, 1.0f, 0.0f } };
-        vertexData_[idx++] = { outer0, { u0, 1.0f }, { 0.0f, 1.0f, 0.0f } };
-
-        // Triangle 2: inner0, inner1, outer1
-        vertexData_[idx++] = { inner0, { u0, 0.0f }, { 0.0f, 1.0f, 0.0f } };
-        vertexData_[idx++] = { inner1, { u1, 0.0f }, { 0.0f, 1.0f, 0.0f } };
-        vertexData_[idx++] = { outer1, { u1, 1.0f }, { 0.0f, 1.0f, 0.0f } };
+        int idx = index * 6;
+        vertexData_[idx + 0] = { outerCur,  { u,     0.0f }, normal };
+        vertexData_[idx + 1] = { outerNext, { uNext, 0.0f }, normal };
+        vertexData_[idx + 2] = { innerCur,  { u,     1.0f }, normal };
+        vertexData_[idx + 3] = { innerCur,  { u,     1.0f }, normal };
+        vertexData_[idx + 4] = { outerNext, { uNext, 0.0f }, normal };
+        vertexData_[idx + 5] = { innerNext, { uNext, 1.0f }, normal };
     }
 }
 
@@ -153,7 +153,7 @@ void Ring::CreatePipeline()
     psoDesc.VS             = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
     psoDesc.PS             = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
 
-    // 加算ブレンド（発光エフェクト向け）
+    // 加算ブレンド（発光エフェクト）
     auto& rt                 = psoDesc.BlendState.RenderTarget[0];
     rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
     rt.BlendEnable           = TRUE;
