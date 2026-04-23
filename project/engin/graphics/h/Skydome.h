@@ -34,7 +34,18 @@ public:
      */
     void Draw();
 
+    /**
+     * @brief 天球全体に色味を乗算する（デフォルトは白 = 無変化）
+     * @param color RGBA。夕焼けや夜空の演出などに使用
+     */
+    void SetSkyColor(const Vector4& color);
+
+    /**
+     * @brief 時刻ベースのY回転に加算するオフセット（ラジアン）を設定する
+     */
+    void SetRotationOffsetY(float offsetY) { rotationOffsetY_ = offsetY; }
+
 private:
-    /** @brief 天球を描画するための3Dオブジェクト */
     std::unique_ptr<Object3d> object_;
+    float rotationOffsetY_ = 0.0f;
 };

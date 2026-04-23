@@ -25,7 +25,7 @@ void Skydome::Update(Camera* camera, float timeRatio)
     // 時間に合わせてY軸回転（0.0=18:00 → 1.0=翌6:00 → 半周π）
     // ゲームは12時間分(18:00→6:00)なので、24時間テクスチャの半周分だけ回す
     float rotY = timeRatio * std::numbers::pi_v<float>;
-    object_->SetRotation({ 0.0f, -rotY, 0.0f });
+    object_->SetRotation({ 0.0f, -rotY + rotationOffsetY_, 0.0f });
 
     // 行列の更新
     object_->Update();
@@ -36,4 +36,9 @@ void Skydome::Draw()
      if (object_) {
         object_->Draw();
     }
+}
+
+void Skydome::SetSkyColor(const Vector4& color)
+{
+    object_->SetColor(color);
 }
