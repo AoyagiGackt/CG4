@@ -3,6 +3,11 @@
 
 using namespace Microsoft::WRL;
 
+// シャドウパス用ラスタライザバイアス（セルフシャドウ防止）
+// kShadowMapSize は ShadowManager::kShadowMapSize と一致させること
+static constexpr INT   kShadowDepthBias       = 10;
+static constexpr float kShadowSlopeScaledBias = 1.0f;
+
 void ModelCommon::Initialize(DirectXCommon* dxCommon)
 {
     dxCommon_ = dxCommon;
@@ -186,8 +191,8 @@ void ModelCommon::Initialize(DirectXCommon* dxCommon)
     shadowPsoDesc.PS                    = { nullptr, 0 }; // PSなし（深度のみ）
     shadowPsoDesc.RasterizerState.CullMode          = D3D12_CULL_MODE_BACK;
     shadowPsoDesc.RasterizerState.FillMode          = D3D12_FILL_MODE_SOLID;
-    shadowPsoDesc.RasterizerState.DepthBias         = 10;      // セルフシャドウ防止
-    shadowPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
+    shadowPsoDesc.RasterizerState.DepthBias            = kShadowDepthBias;
+    shadowPsoDesc.RasterizerState.SlopeScaledDepthBias = kShadowSlopeScaledBias;
     shadowPsoDesc.DepthStencilState.DepthEnable     = TRUE;
     shadowPsoDesc.DepthStencilState.DepthWriteMask  = D3D12_DEPTH_WRITE_MASK_ALL;
     shadowPsoDesc.DepthStencilState.DepthFunc       = D3D12_COMPARISON_FUNC_LESS_EQUAL;

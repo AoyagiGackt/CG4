@@ -39,6 +39,7 @@
 #include "hoge.h"
 #include "HitStarEmitter.h"
 #include "Ring.h"
+#include "Cylinder.h"
 
 /**
  * @brief ゲームプレイ本編のシーンクラス
@@ -129,6 +130,21 @@ private:
 	float   ringInnerRadius_ = 1.5f;
 	float   ringOuterRadius_ = 2.5f;
 
+	// --- Cylinder ---
+	std::unique_ptr<Cylinder> cylinder_;
+	Vector3 cylinderPosition_     = { 17.0f, 0.0f, 0.0f };
+	Vector3 cylinderRotation_     = {};
+	Vector4 cylinderColor_        = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float   cylinderScale_        = 1.0f;
+	float   cylinderTopRadius_    = 1.0f;
+	float   cylinderBottomRadius_ = 1.0f;
+	float   cylinderHeight_       = 3.0f;
+	float   cylinderAlphaRef_     = 0.0f;
+
+	// --- Skydome パラメータ ---
+	Vector4 skyColor_       = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float   skyRotOffsetY_  = 0.0f;
+
 	// --- デバッグ・エディタ関連 ---
 	bool debugScrollPaused_ = false;
 	bool debugSpawnDisabled_ = false;
@@ -139,7 +155,7 @@ private:
 	std::string enemyObjPath_ = "Resources/boss/boss.obj";
 	std::string enemyTexPath_ = "Resources/boss/boss.png";
 
-	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,HitStar,Ring };
+	enum class SelectedType{ None,Player,Enemy,Camera,EnemySettings,UIElement,HitStar,Ring,Cylinder,Skydome };
 	SelectedType editorSelectedType_ = SelectedType::None;
 	int editorSelectedIndex_ = -1;
 

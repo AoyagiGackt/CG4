@@ -96,6 +96,14 @@ void GamePlayScene::Initialize(DirectXCommon* dxCommon, Input* input, Audio* aud
     ring_->SetInnerRadius(ringInnerRadius_);
     ring_->SetOuterRadius(ringOuterRadius_);
 
+    // Cylinder
+    cylinder_ = std::make_unique<Cylinder>();
+    cylinder_->Initialize(dxCommon_);
+    cylinder_->SetPosition(cylinderPosition_);
+    cylinder_->SetTopRadius(cylinderTopRadius_);
+    cylinder_->SetBottomRadius(cylinderBottomRadius_);
+    cylinder_->SetHeight(cylinderHeight_);
+
     ScoreManager::GetInstance()->LoadScores();
     ScoreManager::GetInstance()->ResetCurrentScore();
     gameTime_.Initialize();
@@ -227,6 +235,7 @@ void GamePlayScene::Update()
     }
 
     ring_->Update(camera_.get());
+    cylinder_->Update(camera_.get());
     ParticleManager::GetInstance()->Update(camera_.get());
 }
 
@@ -283,12 +292,20 @@ void GamePlayScene::UpdateDebugUI()
         editorSelectedType_ = SelectedType::Player;
         editorSelectedIndex_ = -1;
     }
+    if (ImGui::Selectable("Skydome", editorSelectedType_ == SelectedType::Skydome)) {
+        editorSelectedType_ = SelectedType::Skydome;
+        editorSelectedIndex_ = -1;
+    }
     if (ImGui::Selectable("HitStar Emitter", editorSelectedType_ == SelectedType::HitStar)) {
         editorSelectedType_ = SelectedType::HitStar;
         editorSelectedIndex_ = -1;
     }
     if (ImGui::Selectable("Ring", editorSelectedType_ == SelectedType::Ring)) {
         editorSelectedType_ = SelectedType::Ring;
+        editorSelectedIndex_ = -1;
+    }
+    if (ImGui::Selectable("Cylinder", editorSelectedType_ == SelectedType::Cylinder)) {
+        editorSelectedType_ = SelectedType::Cylinder;
         editorSelectedIndex_ = -1;
     }
     if (ImGui::Selectable("Enemy Settings", editorSelectedType_ == SelectedType::EnemySettings)) {
@@ -569,6 +586,66 @@ void GamePlayScene::UpdateDebugUI()
 
         if (ImGui::ColorEdit4("Color", &ringColor_.x)) {
             ring_->SetColor(ringColor_);
+        }
+
+        break;
+    }
+
+    case SelectedType::Cylinder: {
+        ImGui::TextColored(ImVec4(0.8f, 0.6f, 1.0f, 1), "[Cylinder]");
+        ImGui::Separator();
+
+        if (ImGui::DragFloat3("Position", &cylinderPosition_.x, 0.1f)) {
+            cylinder_->SetPosition(cylinderPosition_);
+        }
+        if (ImGui::DragFloat3("Rotation", &cylinderRotation_.x, 0.01f)) {
+            cylinder_->SetRotation(cylinderRotation_);
+        }
+        if (ImGui::DragFloat("Scale", &cylinderScale_, 0.01f, 0.01f, 20.0f)) {
+            cylinder_->SetScale(cylinderScale_);
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::DragFloat("Top Radius", &cylinderTopRadius_, 0.05f, 0.01f, 50.0f)) {
+            cylinder_->SetTopRadius(cylinderTopRadius_);
+        }
+        if (ImGui::DragFloat("Bottom Radius", &cylinderBottomRadius_, 0.05f, 0.01f, 50.0f)) {
+            cylinder_->SetBottomRadius(cylinderBottomRadius_);
+        }
+        if (ImGui::DragFloat("Height", &cylinderHeight_, 0.05f, 0.01f, 50.0f)) {
+            cylinder_->SetHeight(cylinderHeight_);
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::ColorEdit4("Color", &cylinderColor_.x)) {
+            cylinder_->SetColor(cylinderColor_);
+        }
+        if (ImGui::SliderFloat("Alpha Reference", &cylinderAlphaRef_, 0.0f, 1.0f)) {
+            cylinder_->SetAlphaReference(cylinderAlphaRef_);
+        }
+
+        break;
+    }
+
+    case SelectedType::Skydome: {
+        ImGui::TextColored(ImVec4(0.5f, 0.8f, 1.0f, 1), "[Skydome]");
+        ImGui::Separator();
+
+        if (ImGui::ColorEdit4("Sky Color", &skyColor_.x)) {
+            skydome_->SetSkyColor(skyColor_);
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::SliderFloat("Rotation Offset Y", &skyRotOffsetY_, -3.14159265f, 3.14159265f)) {
+            skydome_->SetRotationOffsetY(skyRotOffsetY_);
+        }
+
+        if (ImGui::Button("Reset Offset")) {
+            skyRotOffsetY_ = 0.0f;
+            skydome_->SetRotationOffsetY(0.0f);
         }
 
         break;
@@ -1178,6 +1255,7 @@ void GamePlayScene::Draw()
     enemyManager_->DrawBullets();
     ParticleManager::GetInstance()->Draw(camera_.get());
     ring_->Draw();
+    cylinder_->Draw();
 
     // 2D UI（ImGuiで追加したスプライト要素）
     spriteCommon_->CommonDrawSettings();
