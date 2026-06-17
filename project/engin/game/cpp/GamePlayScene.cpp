@@ -82,14 +82,23 @@ void GamePlayScene::Update()
         obj->Update();
     }
 
-    // Auto Loop が有効なら選択中エフェクトを繰り返し発火
-    if (hitEffectAutoLoop_) {
-        hitEffectLoopTimer_ += 1.0f / 60.0f;
-        if (hitEffectLoopTimer_ >= hitEffectLoopInterval_) {
-            hitEffectLoopTimer_ = 0.0f;
-            hitEffect_->Trigger({ 14.5f, 2.0f, 0.0f },
-                static_cast<HitEffect::Type>(selectedEffectType_));
-        }
+    // 左・中央・右の順にヒットエフェクトをループ発火
+    static const Vector3 kFirePositions[] = {
+        {  8.0f, 2.0f, 0.0f },   // 左
+        { 14.5f, 2.0f, 0.0f },   // 中央
+        { 21.0f, 2.0f, 0.0f },   // 右
+    };
+    static const HitEffect::Type kFireTypes[] = {
+        HitEffect::Type::Slash,
+        HitEffect::Type::Impact,
+        HitEffect::Type::Explosion,
+    };
+
+    hitEffectTimer_ += 1.0f / 60.0f;
+    if (hitEffectTimer_ >= kHitEffectInterval) {
+        hitEffectTimer_ = 0.0f;
+        hitEffect_->Trigger(kFirePositions[hitEffectIndex_], kFireTypes[hitEffectIndex_]);
+        hitEffectIndex_ = (hitEffectIndex_ + 1) % 3;
     }
 
     UpdateDebugUI();
@@ -139,11 +148,6 @@ void GamePlayScene::UpdateDebugUI()
         editorSelectedType_  = SelectedType::Skydome;
         editorSelectedIndex_ = -1;
     }
-    if (ImGui::Selectable("Hit Effects", editorSelectedType_ == SelectedType::HitEffects)) {
-        editorSelectedType_  = SelectedType::HitEffects;
-        editorSelectedIndex_ = -1;
-    }
-
     // ----- UI Elements -----
     char uiHeader[48];
     snprintf(uiHeader, sizeof(uiHeader), "UI Elements (%d)", (int)uiElements_.size());
@@ -226,35 +230,6 @@ void GamePlayScene::UpdateDebugUI()
         if (ImGui::Button("Reset Offset")) {
             skyRotOffsetY_ = 0.0f;
             skydome_->SetRotationOffsetY(0.0f);
-        }
-        break;
-    }
-
-    case SelectedType::HitEffects: {
-        ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1), "[Hit Effects]");
-        ImGui::Separator();
-
-        // エフェクト種類の選択
-        ImGui::Text("Type:");
-        ImGui::RadioButton("Slash",     &selectedEffectType_, 0); ImGui::SameLine();
-        ImGui::RadioButton("Impact",    &selectedEffectType_, 1); ImGui::SameLine();
-        ImGui::RadioButton("Explosion", &selectedEffectType_, 2);
-
-        ImGui::Separator();
-
-        // 手動発火
-        const Vector3 kCenter = { 14.5f, 2.0f, 0.0f };
-        if (ImGui::Button("Fire!", ImVec2(-1, 0))) {
-            hitEffect_->Trigger(kCenter, static_cast<HitEffect::Type>(selectedEffectType_));
-        }
-
-        ImGui::Separator();
-
-        // 自動ループ
-        ImGui::Checkbox("Auto Loop", &hitEffectAutoLoop_);
-        if (hitEffectAutoLoop_) {
-            ImGui::SliderFloat("Interval##he", &hitEffectLoopInterval_, 0.2f, 3.0f);
-            ImGui::Text("Timer: %.2f / %.2f", hitEffectLoopTimer_, hitEffectLoopInterval_);
         }
         break;
     }
@@ -379,6 +354,7 @@ void GamePlayScene::UpdateDebugUI()
     ImGui::SameLine();
     if (ImGui::Button("Load##cam")) { LoadCameraParams(); }
     ImGui::End();
+
 #endif
 }
 

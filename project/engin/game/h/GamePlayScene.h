@@ -85,10 +85,9 @@ private:
 
 	// --- ヒットエフェクト ---
 	std::unique_ptr<HitEffect> hitEffect_;
-	int   selectedEffectType_    = 0;     ///< 0=Slash 1=Impact 2=Explosion
-	bool  hitEffectAutoLoop_     = false;
-	float hitEffectLoopTimer_    = 0.0f;
-	float hitEffectLoopInterval_ = 0.8f;
+	float hitEffectTimer_ = 0.0f;
+	int   hitEffectIndex_ = 0;
+	static constexpr float kHitEffectInterval = 1.2f;
 
 	// --- Skydome パラメータ ---
 	Vector4 skyColor_      = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -97,7 +96,7 @@ private:
 	// --- デバッグ・エディタ関連 ---
 	bool debugEditMode_ = false;
 
-	enum class SelectedType { None, Camera, Skydome, HitEffects, UIElement };
+	enum class SelectedType { None, Camera, Skydome, UIElement };
 	SelectedType editorSelectedType_  = SelectedType::None;
 	int          editorSelectedIndex_ = -1;
 
