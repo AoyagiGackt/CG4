@@ -170,6 +170,7 @@
     <ClCompile Include="engin\game\cpp\GameObject.cpp" />
     <ClCompile Include="engin\game\cpp\GamePlayScene.cpp" />
     <ClCompile Include="engin\game\cpp\hoge.cpp" />
+    <ClCompile Include="engin\game\cpp\HitEffect.cpp" />
     <ClCompile Include="engin\game\cpp\LightingMode.cpp" />
     <ClCompile Include="engin\game\cpp\SceneFactory.cpp" />
     <ClCompile Include="engin\game\cpp\SceneManager.cpp" />
@@ -314,6 +315,7 @@
     <ClInclude Include="engin\game\h\TimeDisplay.h" />
     <ClInclude Include="engin\game\h\ScoreDisplay.h" />
     <ClInclude Include="engin\game\h\hoge.h" />
+    <ClInclude Include="engin\game\h\HitEffect.h" />
     <ClInclude Include="engin\game\h\LightingMode.h" />
     <ClInclude Include="engin\game\h\Logger.h" />
     <ClInclude Include="engin\game\h\SceneFactory.h" />
